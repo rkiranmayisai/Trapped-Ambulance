@@ -1,5 +1,6 @@
 # 🚑 Trapped Ambulance: Smart Emergency Vehicle Clearance & Dynamic Green Corridor System
 
+[![Author: Reddy Kiranmayi](https://img.shields.io/badge/Author-Reddy%20Kiranmayi-blueviolet.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![IoT: ESP32 / Arduino](https://img.shields.io/badge/Hardware-ESP32%20%2F%20Arduino%20%2B%20GPS-red.svg)](https://www.espressif.com/)
 [![Backend: Python / Flask / Node.js](https://img.shields.io/badge/Backend-Python%20%2F%20Flask%20%2F%20WebSockets-blue.svg)](https://flask.palletsprojects.com/)

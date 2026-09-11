@@ -141,7 +141,7 @@
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe src="/driver" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeDriver" src="/driver" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 2: CIVILIAN V2X RADAR -->
@@ -155,7 +155,7 @@
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe src="/civilian" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeCivilian" src="/civilian" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 3: HOSPITAL ER HUB -->
@@ -169,7 +169,7 @@
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe src="/hospital" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeHospital" src="/hospital" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 4: TRAFFIC POLICE COMMAND -->
@@ -183,7 +183,7 @@
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe src="/police" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframePolice" src="/police" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
       </div>
@@ -251,6 +251,14 @@
   <!-- SCRIPT ENGINE -->
   <script>
     lucide.createIcons();
+    if (window.location.protocol === 'file:') {
+      window.addEventListener('DOMContentLoaded', () => {
+        const d = document.getElementById('iframeDriver'); if (d) d.src = 'driver.html';
+        const c = document.getElementById('iframeCivilian'); if (c) c.src = 'civilian.html';
+        const h = document.getElementById('iframeHospital'); if (h) h.src = 'hospital.html';
+        const p = document.getElementById('iframePolice'); if (p) p.src = 'police.html';
+      });
+    }
     let tourActive = false;
     let tourStep = 0;
     let tourTimer = null;
