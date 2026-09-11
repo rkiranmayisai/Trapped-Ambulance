@@ -384,8 +384,6 @@ Yes. The ESP32 / Arduino controller is designed as an add-on retrofit module tha
 ---
 
 ## 👥 Contributors & License
-
-- **Project Lead & Developer**: Sai Prakash N
 - **License**: This project is open-source under the [MIT License](LICENSE).
 
 ---
