@@ -12,9 +12,10 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
-    * { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070b14 !important; color: #f8fafc !important; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; line-height: 1.5; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
     #map {
       height: 380px;
@@ -25,6 +26,181 @@
     .leaflet-tile {
       filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
     }
+
+    .flex { display: flex !important; }
+    .flex-col { flex-direction: column !important; }
+    .flex-row { flex-direction: row !important; }
+    .flex-wrap { flex-wrap: wrap !important; }
+    .flex-1 { flex: 1 1 0% !important; }
+    .flex-shrink-0 { flex-shrink: 0 !important; }
+    .items-center { align-items: center !important; }
+    .items-start { align-items: flex-start !important; }
+    .justify-center { justify-content: center !important; }
+    .justify-between { justify-content: space-between !important; }
+    .justify-around { justify-content: space-around !important; }
+    .grid { display: grid !important; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+    @media (min-width: 640px) {
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+      .sm\:p-6 { padding: 24px !important; }
+    }
+
+    @media (min-width: 768px) {
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:pb-0 { padding-bottom: 0 !important; }
+      .md\:pb-6 { padding-bottom: 24px !important; }
+    }
+
+    @media (min-width: 1024px) {
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      .lg\:col-span-2 { grid-column: span 2 / span 2 !important; }
+    }
+
+    .gap-1 { gap: 4px !important; }
+    .gap-1\.5 { gap: 6px !important; }
+    .gap-2 { gap: 8px !important; }
+    .gap-3 { gap: 12px !important; }
+    .gap-4 { gap: 16px !important; }
+    .gap-6 { gap: 24px !important; }
+
+    .p-1 { padding: 4px !important; }
+    .p-2 { padding: 8px !important; }
+    .p-2\.5 { padding: 10px !important; }
+    .p-3 { padding: 12px !important; }
+    .p-3\.5 { padding: 14px !important; }
+    .p-4 { padding: 16px !important; }
+    .p-6 { padding: 24px !important; }
+    .px-2 { padding-left: 8px !important; padding-right: 8px !important; }
+    .px-2\.5 { padding-left: 10px !important; padding-right: 10px !important; }
+    .px-3 { padding-left: 12px !important; padding-right: 12px !important; }
+    .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+    .py-0\.5 { padding-top: 2px !important; padding-bottom: 2px !important; }
+    .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+    .py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
+    .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .py-2\.5 { padding-top: 10px !important; padding-bottom: 10px !important; }
+    .py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
+    .pb-1 { padding-bottom: 4px !important; }
+    .pb-3 { padding-bottom: 12px !important; }
+    .pb-20 { padding-bottom: 80px !important; }
+    .pr-2 { padding-right: 8px !important; }
+
+    .w-full { width: 100% !important; }
+    .w-3\.5 { width: 14px !important; }
+    .h-3\.5 { height: 14px !important; }
+    .w-4 { width: 16px !important; }
+    .h-4 { height: 16px !important; }
+    .w-5 { width: 20px !important; }
+    .h-5 { height: 20px !important; }
+    .w-6 { width: 24px !important; }
+    .h-6 { height: 24px !important; }
+    .w-10 { width: 40px !important; }
+    .h-10 { height: 40px !important; }
+    .max-h-44 { max-height: 11rem !important; }
+    .min-h-screen { min-height: 100vh !important; }
+    .max-w-6xl { max-width: 72rem !important; margin-left: auto; margin-right: auto; }
+    .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+    .mt-0\.5 { margin-top: 2px !important; }
+    .mt-1 { margin-top: 4px !important; }
+    .mt-4 { margin-top: 16px !important; }
+    .space-y-1\.5 > :not([hidden]) ~ :not([hidden]) { margin-top: 6px !important; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 8px !important; }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 12px !important; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 16px !important; }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 24px !important; }
+
+    .rounded-lg { border-radius: 8px !important; }
+    .rounded-xl { border-radius: 12px !important; }
+    .rounded-2xl { border-radius: 16px !important; }
+    .rounded-3xl { border-radius: 24px !important; }
+    .rounded-full { border-radius: 9999px !important; }
+    .border { border: 1px solid #1e293b !important; }
+    .border-2 { border: 2px solid #1e293b !important; }
+    .border-b { border-bottom: 1px solid #1e293b !important; }
+    .border-t { border-top: 1px solid #1e293b !important; }
+    .border-slate-800 { border-color: #1e293b !important; }
+    .border-slate-700 { border-color: #334155 !important; }
+    .border-indigo-500\/30 { border-color: rgba(99, 102, 241, 0.3) !important; }
+    .border-indigo-500\/50 { border-color: rgba(99, 102, 241, 0.5) !important; }
+    .border-emerald-500\/40 { border-color: rgba(16, 185, 129, 0.4) !important; }
+    .border-amber-500\/40 { border-color: rgba(245, 158, 11, 0.4) !important; }
+    .border-red-500\/40 { border-color: rgba(239, 68, 68, 0.4) !important; }
+    .border-emerald-400 { border-color: #34d399 !important; }
+
+    .bg-slate-950 { background-color: #020617 !important; }
+    .bg-slate-950\/90 { background-color: rgba(2, 6, 23, 0.9) !important; }
+    .bg-slate-950\/95 { background-color: rgba(2, 6, 23, 0.95) !important; }
+    .bg-slate-900 { background-color: #0f172a !important; }
+    .bg-slate-900\/90 { background-color: rgba(15, 23, 42, 0.9) !important; }
+    .bg-slate-800 { background-color: #1e293b !important; }
+    .bg-indigo-600\/20 { background-color: rgba(79, 70, 229, 0.2) !important; }
+    .bg-indigo-500\/20 { background-color: rgba(99, 102, 241, 0.2) !important; }
+    .bg-emerald-500 { background-color: #10b981 !important; }
+    .bg-emerald-950 { background-color: #022c22 !important; }
+    .bg-emerald-600\/30 { background-color: rgba(5, 150, 105, 0.3) !important; }
+    .bg-amber-950 { background-color: #451a03 !important; }
+    .bg-amber-600\/30 { background-color: rgba(217, 119, 6, 0.3) !important; }
+    .bg-red-600\/30 { background-color: rgba(220, 38, 38, 0.3) !important; }
+    .bg-gradient-to-br { background: linear-gradient(135deg, #4f46e5, #1e40af) !important; }
+
+    .text-white { color: #ffffff !important; }
+    .text-slate-100 { color: #f1f5f9 !important; }
+    .text-slate-200 { color: #e2e8f0 !important; }
+    .text-slate-300 { color: #cbd5e1 !important; }
+    .text-slate-400 { color: #94a3b8 !important; }
+    .text-slate-500 { color: #64748b !important; }
+    .text-slate-950 { color: #020617 !important; }
+    .text-indigo-300 { color: #a5b4fc !important; }
+    .text-indigo-400 { color: #818cf8 !important; }
+    .text-emerald-300 { color: #6ee7b7 !important; }
+    .text-emerald-400 { color: #34d399 !important; }
+    .text-amber-300 { color: #fcd34d !important; }
+    .text-amber-400 { color: #fbbf24 !important; }
+    .text-red-300 { color: #fca5a5 !important; }
+    .text-red-400 { color: #f87171 !important; }
+    .text-rose-300 { color: #fda4af !important; }
+    .text-rose-400 { color: #fb7185 !important; }
+
+    .text-\[9px\] { font-size: 9px !important; }
+    .text-\[10px\] { font-size: 10px !important; }
+    .text-\[11px\] { font-size: 11px !important; }
+    .text-xs { font-size: 12px !important; }
+    .text-sm { font-size: 14px !important; }
+    .text-base { font-size: 16px !important; }
+    .text-xl { font-size: 20px !important; }
+    .text-2xl { font-size: 24px !important; }
+    .font-normal { font-weight: 400 !important; }
+    .font-medium { font-weight: 500 !important; }
+    .font-bold { font-weight: 700 !important; }
+    .font-black { font-weight: 900 !important; }
+    .font-mono { font-family: "JetBrains Mono", Consolas, monospace !important; }
+    .uppercase { text-transform: uppercase !important; }
+    .tracking-wider { letter-spacing: 0.05em !important; }
+    .tracking-tight { letter-spacing: -0.025em !important; }
+    .text-center { text-align: center !important; }
+    .hidden { display: none !important; }
+
+    .relative { position: relative !important; }
+    .absolute { position: absolute !important; }
+    .fixed { position: fixed !important; }
+    .sticky { position: sticky !important; }
+    .top-0 { top: 0 !important; }
+    .bottom-0 { bottom: 0 !important; }
+    .left-0 { left: 0 !important; }
+    .right-0 { right: 0 !important; }
+    .z-10 { z-index: 10 !important; }
+    .z-40 { z-index: 40 !important; }
+    .z-50 { z-index: 50 !important; }
+    .overflow-hidden { overflow: hidden !important; }
+    .overflow-x-auto { overflow-x: auto !important; }
+    .overflow-y-auto { overflow-y: auto !important; }
+    .whitespace-nowrap { white-space: nowrap !important; }
+
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4); }
   </style>
 </head>
 <body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white pb-20 md:pb-6">
@@ -99,47 +275,48 @@
     <!-- INTERACTIVE MAP & JUNCTION OVERRIDE CONTROLS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- LEAFLET GPS MAP -->
-      <div class="lg:col-span-2 bg-slate-900/90 p-5 rounded-3xl border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
+      <!-- MAP CONTAINER (2 COLS) -->
+      <div class="lg:col-span-2 bg-slate-900/90 p-6 rounded-3xl border border-slate-800 space-y-4">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
           <div class="flex items-center gap-2">
-            <i data-lucide="map" class="w-5 h-5 text-indigo-400"></i>
-            <h3 class="text-sm font-black text-white uppercase tracking-wider">Live City Corridor Telematics Map</h3>
+            <i data-lucide="map-pin" class="w-5 h-5 text-indigo-400"></i>
+            <h3 class="text-sm font-black text-white uppercase tracking-wider">Live Corridor Geographic Preemption Map</h3>
           </div>
-          <div class="flex items-center gap-2 text-xs font-mono">
-            <span class="flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> J1 Green</span>
-            <span class="flex items-center gap-1 text-red-400"><span class="w-2 h-2 rounded-full bg-red-400"></span> Ambulance</span>
-          </div>
+          <span class="text-[11px] font-mono text-slate-400">Distance to J1: <b id="distJ1Text" class="text-white">380m</b></span>
         </div>
 
         <div id="map"></div>
+
       </div>
 
-      <!-- JUNCTION OVERRIDE & HARDWARE CONTROLLER -->
-      <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
-        <div>
+      <!-- JUNCTION SIGNALS CONTROL STATUS & LOGS (1 COL) -->
+      <div class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
+        
+        <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Signal Manual Override
+              <i data-lucide="traffic-cone" class="w-4 h-4 text-amber-400"></i> Junction Status
             </h3>
-            <span class="text-[10px] font-mono text-slate-400">Police Override</span>
+            <span class="text-[10px] font-mono text-emerald-400 font-bold">IoT MQTT Sync</span>
           </div>
 
-          <!-- JUNCTIONS LIST -->
-          <div class="space-y-3 mt-3">
+          <!-- Junction List -->
+          <div class="space-y-3">
+            
             <!-- Junction 1 -->
             <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
               <div class="flex items-center justify-between">
                 <div>
                   <div class="text-xs font-black text-white">Junction 1: Cyber Gateway</div>
-                  <div class="text-[10px] text-slate-400">Distance: <span id="distJ1Text">380m</span></div>
+                  <div class="text-[10px] text-slate-400">Preemption Corridor Axis</div>
                 </div>
-                <span id="signalStateJ1" class="text-xs font-mono font-black text-emerald-400 bg-emerald-950 px-2 py-1 rounded-lg border border-emerald-500/40">GREEN</span>
+                <span id="signalStateJ1" class="text-xs font-mono font-black text-emerald-400 bg-emerald-950 px-2 py-1 rounded-lg border border-emerald-500/40">GREEN_CORRIDOR</span>
               </div>
               <div class="flex gap-1.5 pt-1">
                 <button onclick="overrideSignal('J1', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
-                <button onclick="overrideSignal('J1', 'YELLOW_TRANSITION')" class="flex-1 py-1.5 bg-amber-600/30 hover:bg-amber-600/60 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-500/30">Force Yellow</button>
-                <button onclick="overrideSignal('J1', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+                <button onclick="overrideSignal('J1', 'YELLOW_TRANSITION')" class="flex-1 py-1.5 bg-amber-600/30 hover:bg-amber-600/60 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-500/30">Yellow Clear</button>
+                <button onclick="overrideSignal('J1', 'RECOVERY')" class="flex-1 py-1.5 bg-red-600/30 hover:bg-red-600/60 text-red-300 rounded-lg text-[10px] font-bold border border-red-500/30">All Red</button>
               </div>
             </div>
 
@@ -154,7 +331,8 @@
               </div>
               <div class="flex gap-1.5 pt-1">
                 <button onclick="overrideSignal('J2', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
-                <button onclick="overrideSignal('J2', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+                <button onclick="overrideSignal('J2', 'YELLOW_TRANSITION')" class="flex-1 py-1.5 bg-amber-600/30 hover:bg-amber-600/60 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-500/30">Yellow Clear</button>
+                <button onclick="overrideSignal('J2', 'RECOVERY')" class="flex-1 py-1.5 bg-red-600/30 hover:bg-red-600/60 text-red-300 rounded-lg text-[10px] font-bold border border-red-500/30">All Red</button>
               </div>
             </div>
 
@@ -169,17 +347,19 @@
               </div>
               <div class="flex gap-1.5 pt-1">
                 <button onclick="overrideSignal('J3', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
-                <button onclick="overrideSignal('J3', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+                <button onclick="overrideSignal('J3', 'YELLOW_TRANSITION')" class="flex-1 py-1.5 bg-amber-600/30 hover:bg-amber-600/60 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-500/30">Yellow Clear</button>
+                <button onclick="overrideSignal('J3', 'RECOVERY')" class="flex-1 py-1.5 bg-red-600/30 hover:bg-red-600/60 text-red-300 rounded-lg text-[10px] font-bold border border-red-500/30">All Red</button>
               </div>
             </div>
 
           </div>
         </div>
 
-        <!-- QUICK SYSTEM RESET -->
+        <!-- System Reset Button -->
         <button onclick="resetSystemToDefault()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs border border-slate-700 transition active:scale-95 flex items-center justify-center gap-2">
-          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset All Signals to Normal Flow
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset All Junctions to Normal Cycle
         </button>
+
       </div>
 
     </div>

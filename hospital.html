@@ -9,9 +9,201 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
-    * { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070b14 !important; color: #f8fafc !important; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; line-height: 1.5; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+    .flex { display: flex !important; }
+    .flex-col { flex-direction: column !important; }
+    .flex-row { flex-direction: row !important; }
+    .flex-wrap { flex-wrap: wrap !important; }
+    .flex-1 { flex: 1 1 0% !important; }
+    .flex-shrink-0 { flex-shrink: 0 !important; }
+    .items-center { align-items: center !important; }
+    .items-start { align-items: flex-start !important; }
+    .justify-center { justify-content: center !important; }
+    .justify-between { justify-content: space-between !important; }
+    .justify-around { justify-content: space-around !important; }
+    .grid { display: grid !important; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+
+    @media (min-width: 640px) {
+      .sm\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+      .sm\:text-2xl { font-size: 24px !important; }
+      .sm\:text-3xl { font-size: 30px !important; }
+      .sm\:text-4xl { font-size: 36px !important; }
+      .sm\:p-6 { padding: 24px !important; }
+    }
+
+    @media (min-width: 768px) {
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:w-auto { width: auto !important; }
+      .md\:pb-6 { padding-bottom: 24px !important; }
+    }
+
+    @media (min-width: 1024px) {
+      .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+      .lg\:col-span-2 { grid-column: span 2 / span 2 !important; }
+    }
+
+    .gap-1 { gap: 4px !important; }
+    .gap-1\.5 { gap: 6px !important; }
+    .gap-2 { gap: 8px !important; }
+    .gap-3 { gap: 12px !important; }
+    .gap-4 { gap: 16px !important; }
+    .gap-6 { gap: 24px !important; }
+
+    .p-1 { padding: 4px !important; }
+    .p-2 { padding: 8px !important; }
+    .p-2\.5 { padding: 10px !important; }
+    .p-3 { padding: 12px !important; }
+    .p-3\.5 { padding: 14px !important; }
+    .p-4 { padding: 16px !important; }
+    .p-6 { padding: 24px !important; }
+    .px-2 { padding-left: 8px !important; padding-right: 8px !important; }
+    .px-2\.5 { padding-left: 10px !important; padding-right: 10px !important; }
+    .px-3 { padding-left: 12px !important; padding-right: 12px !important; }
+    .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+    .py-0\.5 { padding-top: 2px !important; padding-bottom: 2px !important; }
+    .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+    .py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
+    .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .py-2\.5 { padding-top: 10px !important; padding-bottom: 10px !important; }
+    .py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
+    .pb-3 { padding-bottom: 12px !important; }
+    .pb-20 { padding-bottom: 80px !important; }
+    .pt-2 { padding-top: 8px !important; }
+
+    .w-full { width: 100% !important; }
+    .w-px { width: 1px !important; }
+    .w-3\.5 { width: 14px !important; }
+    .h-3\.5 { height: 14px !important; }
+    .w-4 { width: 16px !important; }
+    .h-4 { height: 16px !important; }
+    .w-5 { width: 20px !important; }
+    .h-5 { height: 20px !important; }
+    .w-6 { width: 24px !important; }
+    .h-6 { height: 24px !important; }
+    .w-8 { width: 32px !important; }
+    .h-8 { height: 32px !important; }
+    .w-10 { width: 40px !important; }
+    .h-10 { height: 40px !important; }
+    .w-20 { width: 80px !important; }
+    .h-20 { height: 80px !important; }
+    .h-24 { height: 96px !important; }
+    .h-32 { height: 128px !important; }
+    .min-h-screen { min-height: 100vh !important; }
+    .max-w-6xl { max-width: 72rem !important; margin-left: auto; margin-right: auto; }
+    .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+    .mt-0\.5 { margin-top: 2px !important; }
+    .mt-1 { margin-top: 4px !important; }
+    .mt-4 { margin-top: 16px !important; }
+    .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px !important; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 8px !important; }
+    .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 12px !important; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 16px !important; }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 24px !important; }
+
+    .rounded-md { border-radius: 6px !important; }
+    .rounded-xl { border-radius: 12px !important; }
+    .rounded-2xl { border-radius: 16px !important; }
+    .rounded-3xl { border-radius: 24px !important; }
+    .rounded-full { border-radius: 9999px !important; }
+    .border { border: 1px solid #1e293b !important; }
+    .border-2 { border: 2px solid #1e293b !important; }
+    .border-b { border-bottom: 1px solid #1e293b !important; }
+    .border-t { border-top: 1px solid #1e293b !important; }
+    .border-slate-800 { border-color: #1e293b !important; }
+    .border-slate-700 { border-color: #334155 !important; }
+    .border-red-500 { border-color: #ef4444 !important; }
+    .border-red-500\/30 { border-color: rgba(239, 68, 68, 0.3) !important; }
+    .border-rose-500 { border-color: #f43f5e !important; }
+    .border-rose-500\/30 { border-color: rgba(244, 63, 94, 0.3) !important; }
+    .border-rose-500\/50 { border-color: rgba(244, 63, 94, 0.5) !important; }
+    .border-cyan-500\/30 { border-color: rgba(6, 182, 212, 0.3) !important; }
+    .border-amber-500\/30 { border-color: rgba(245, 158, 11, 0.3) !important; }
+    .border-emerald-500\/20 { border-color: rgba(16, 185, 129, 0.2) !important; }
+    .border-emerald-500\/40 { border-color: rgba(16, 185, 129, 0.4) !important; }
+    .border-emerald-400 { border-color: #34d399 !important; }
+
+    .bg-slate-950 { background-color: #020617 !important; }
+    .bg-slate-950\/80 { background-color: rgba(2, 6, 23, 0.8) !important; }
+    .bg-slate-950\/90 { background-color: rgba(2, 6, 23, 0.9) !important; }
+    .bg-slate-950\/95 { background-color: rgba(2, 6, 23, 0.95) !important; }
+    .bg-slate-900 { background-color: #0f172a !important; }
+    .bg-slate-900\/90 { background-color: rgba(15, 23, 42, 0.9) !important; }
+    .bg-slate-800 { background-color: #1e293b !important; }
+    .bg-rose-950\/80 { background-color: rgba(76, 5, 25, 0.8) !important; }
+    .bg-rose-600\/20 { background-color: rgba(225, 29, 72, 0.2) !important; }
+    .bg-rose-500\/20 { background-color: rgba(244, 63, 94, 0.2) !important; }
+    .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.2) !important; }
+    .bg-emerald-500 { background-color: #10b981 !important; }
+    .bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.1) !important; }
+    .bg-emerald-600\/30 { background-color: rgba(5, 150, 105, 0.3) !important; }
+    .bg-indigo-600 { background-color: #4f46e5 !important; }
+    .bg-gradient-to-br { background: linear-gradient(135deg, #e11d48, #991b1b) !important; }
+
+    .text-white { color: #ffffff !important; }
+    .text-slate-100 { color: #f1f5f9 !important; }
+    .text-slate-300 { color: #cbd5e1 !important; }
+    .text-slate-400 { color: #94a3b8 !important; }
+    .text-slate-500 { color: #64748b !important; }
+    .text-slate-950 { color: #020617 !important; }
+    .text-rose-300 { color: #fda4af !important; }
+    .text-rose-400 { color: #fb7185 !important; }
+    .text-red-300 { color: #fca5a5 !important; }
+    .text-red-400 { color: #f87171 !important; }
+    .text-red-500 { color: #ef4444 !important; }
+    .text-amber-400 { color: #fbbf24 !important; }
+    .text-cyan-400 { color: #22d3ee !important; }
+    .text-emerald-300 { color: #6ee7b7 !important; }
+    .text-emerald-400 { color: #34d399 !important; }
+    .text-indigo-300 { color: #a5b4fc !important; }
+    .text-indigo-400 { color: #818cf8 !important; }
+
+    .text-\[9px\] { font-size: 9px !important; }
+    .text-\[10px\] { font-size: 10px !important; }
+    .text-\[11px\] { font-size: 11px !important; }
+    .text-xs { font-size: 12px !important; }
+    .text-sm { font-size: 14px !important; }
+    .text-base { font-size: 16px !important; }
+    .text-xl { font-size: 20px !important; }
+    .text-2xl { font-size: 24px !important; }
+    .text-3xl { font-size: 30px !important; }
+    .text-4xl { font-size: 36px !important; }
+    .font-normal { font-weight: 400 !important; }
+    .font-medium { font-weight: 500 !important; }
+    .font-bold { font-weight: 700 !important; }
+    .font-black { font-weight: 900 !important; }
+    .font-mono { font-family: "JetBrains Mono", Consolas, monospace !important; }
+    .uppercase { text-transform: uppercase !important; }
+    .tracking-wider { letter-spacing: 0.05em !important; }
+    .tracking-tight { letter-spacing: -0.025em !important; }
+    .text-center { text-align: center !important; }
+    .hidden { display: none !important; }
+
+    .relative { position: relative !important; }
+    .absolute { position: absolute !important; }
+    .fixed { position: fixed !important; }
+    .sticky { position: sticky !important; }
+    .top-0 { top: 0 !important; }
+    .bottom-0 { bottom: 0 !important; }
+    .left-0 { left: 0 !important; }
+    .right-0 { right: 0 !important; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .z-40 { z-index: 40 !important; }
+    .z-50 { z-index: 50 !important; }
+    .overflow-hidden { overflow: hidden !important; }
+    .overflow-visible { overflow: visible !important; }
+    .overflow-x-auto { overflow-x: auto !important; }
+    .whitespace-nowrap { white-space: nowrap !important; }
+
+    .trauma-glow-red { box-shadow: 0 0 25px rgba(239, 68, 68, 0.4); }
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4); }
 
     @keyframes ecg-scroll {
       0% { stroke-dashoffset: 600; }
@@ -20,10 +212,6 @@
     .ecg-line {
       stroke-dasharray: 600;
       animation: ecg-scroll 2.5s linear infinite;
-    }
-    
-    .trauma-glow-red {
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
     }
   </style>
 </head>
@@ -244,23 +432,23 @@
 
   <!-- MOBILE BOTTOM NAV BAR FOR QUICK ROLE SWITCHING -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-2 flex justify-around items-center">
-    <a href="/" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
+    <a href="index.html" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
       <i data-lucide="layout-grid" class="w-5 h-5"></i>
       <span class="text-[10px] font-bold mt-0.5">Portal</span>
     </a>
-    <a href="/driver" class="flex flex-col items-center text-slate-400 hover:text-red-400 py-1">
+    <a href="driver.html" class="flex flex-col items-center text-slate-400 hover:text-red-400 py-1">
       <i data-lucide="ambulance" class="w-5 h-5"></i>
       <span class="text-[10px] font-bold mt-0.5">Driver</span>
     </a>
-    <a href="/civilian" class="flex flex-col items-center text-slate-400 hover:text-amber-400 py-1">
+    <a href="civilian.html" class="flex flex-col items-center text-slate-400 hover:text-amber-400 py-1">
       <i data-lucide="car" class="w-5 h-5"></i>
       <span class="text-[10px] font-bold mt-0.5">Civilian</span>
     </a>
-    <a href="/hospital" class="flex flex-col items-center text-rose-400 py-1">
+    <a href="hospital.html" class="flex flex-col items-center text-rose-400 py-1">
       <i data-lucide="cross" class="w-5 h-5"></i>
       <span class="text-[10px] font-bold mt-0.5">Hospital</span>
     </a>
-    <a href="/police" class="flex flex-col items-center text-slate-400 hover:text-indigo-400 py-1">
+    <a href="police.html" class="flex flex-col items-center text-slate-400 hover:text-indigo-400 py-1">
       <i data-lucide="shield" class="w-5 h-5"></i>
       <span class="text-[10px] font-bold mt-0.5">Police</span>
     </a>

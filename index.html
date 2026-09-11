@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>🚑 Trapped Ambulance — Smart Green Corridor & Life-Saving Preemption System</title>
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ef4444">
   
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN (with embedded fallback below) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -15,9 +15,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
-    * { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #070b14 !important; color: #f8fafc !important; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important; line-height: 1.5; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
     .tour-banner { background: linear-gradient(90deg, #dc2626, #4f46e5, #059669); }
     .custom-scroll::-webkit-scrollbar { width: 4px; }
@@ -28,6 +29,178 @@
       color: #f87171 !important;
       border-color: rgba(239, 68, 68, 0.6) !important;
     }
+
+    .flex { display: flex !important; }
+    .flex-col { flex-direction: column !important; }
+    .flex-row { flex-direction: row !important; }
+    .flex-wrap { flex-wrap: wrap !important; }
+    .flex-1 { flex: 1 1 0% !important; }
+    .flex-shrink-0 { flex-shrink: 0 !important; }
+    .items-center { align-items: center !important; }
+    .items-start { align-items: flex-start !important; }
+    .justify-center { justify-content: center !important; }
+    .justify-between { justify-content: space-between !important; }
+    .grid { display: grid !important; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+
+    @media (min-width: 640px) {
+      .sm\:px-6 { padding-left: 24px !important; padding-right: 24px !important; }
+      .sm\:p-6 { padding: 24px !important; }
+      .sm\:text-lg { font-size: 18px !important; }
+    }
+
+    @media (min-width: 768px) {
+      .md\:flex-row { flex-direction: row !important; }
+      .md\:items-center { align-items: center !important; }
+      .md\:pb-0 { padding-bottom: 0 !important; }
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    }
+
+    .gap-1 { gap: 4px !important; }
+    .gap-1\.5 { gap: 6px !important; }
+    .gap-2 { gap: 8px !important; }
+    .gap-2\.5 { gap: 10px !important; }
+    .gap-3 { gap: 12px !important; }
+    .gap-4 { gap: 16px !important; }
+    .gap-6 { gap: 24px !important; }
+
+    .p-1 { padding: 4px !important; }
+    .p-1\.5 { padding: 6px !important; }
+    .p-2 { padding: 8px !important; }
+    .p-3 { padding: 12px !important; }
+    .p-3\.5 { padding: 14px !important; }
+    .p-4 { padding: 16px !important; }
+    .p-6 { padding: 24px !important; }
+    .px-2\.5 { padding-left: 10px !important; padding-right: 10px !important; }
+    .px-3 { padding-left: 12px !important; padding-right: 12px !important; }
+    .px-3\.5 { padding-left: 14px !important; padding-right: 14px !important; }
+    .px-4 { padding-left: 16px !important; padding-right: 16px !important; }
+    .px-6 { padding-left: 24px !important; padding-right: 24px !important; }
+    .py-0\.5 { padding-top: 2px !important; padding-bottom: 2px !important; }
+    .py-1 { padding-top: 4px !important; padding-bottom: 4px !important; }
+    .py-1\.5 { padding-top: 6px !important; padding-bottom: 6px !important; }
+    .py-2 { padding-top: 8px !important; padding-bottom: 8px !important; }
+    .py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
+    .pb-1 { padding-bottom: 4px !important; }
+    .pt-1 { padding-top: 4px !important; }
+
+    .w-full { width: 100% !important; }
+    .w-3 { width: 12px !important; }
+    .h-3 { height: 12px !important; }
+    .w-3\.5 { width: 14px !important; }
+    .h-3\.5 { height: 14px !important; }
+    .w-4 { width: 16px !important; }
+    .h-4 { height: 16px !important; }
+    .w-5 { width: 20px !important; }
+    .h-5 { height: 20px !important; }
+    .w-6 { width: 24px !important; }
+    .h-6 { height: 24px !important; }
+    .w-10 { width: 40px !important; }
+    .h-10 { height: 40px !important; }
+    .w-12 { width: 48px !important; }
+    .h-12 { height: 48px !important; }
+    .w-44 { width: 176px !important; }
+    .h-44 { height: 176px !important; }
+    .h-96 { height: 24rem !important; }
+    .h-full { height: 100% !important; }
+    .min-h-screen { min-height: 100vh !important; }
+    .max-w-md { max-width: 28rem !important; }
+    .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+    .mt-0\.5 { margin-top: 2px !important; }
+    .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 4px !important; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 8px !important; }
+    .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 16px !important; }
+    .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 24px !important; }
+
+    .rounded-lg { border-radius: 8px !important; }
+    .rounded-xl { border-radius: 12px !important; }
+    .rounded-2xl { border-radius: 16px !important; }
+    .rounded-3xl { border-radius: 24px !important; }
+    .rounded-full { border-radius: 9999px !important; }
+    .border { border: 1px solid #1e293b !important; }
+    .border-2 { border: 2px solid #1e293b !important; }
+    .border-b { border-bottom: 1px solid #1e293b !important; }
+    .border-t { border-top: 1px solid #1e293b !important; }
+    .border-none { border: none !important; }
+    .border-slate-800 { border-color: #1e293b !important; }
+    .border-slate-700 { border-color: #334155 !important; }
+    .border-emerald-400 { border-color: #34d399 !important; }
+    .border-emerald-500\/30 { border-color: rgba(16, 185, 129, 0.3) !important; }
+    .border-emerald-500\/40 { border-color: rgba(16, 185, 129, 0.4) !important; }
+    .border-emerald-500\/50 { border-color: rgba(16, 185, 129, 0.5) !important; }
+    .border-emerald-800\/60 { border-color: rgba(6, 78, 59, 0.6) !important; }
+    .border-indigo-500\/40 { border-color: rgba(99, 102, 241, 0.4) !important; }
+
+    .bg-slate-950 { background-color: #020617 !important; }
+    .bg-slate-950\/80 { background-color: rgba(2, 6, 23, 0.8) !important; }
+    .bg-slate-950\/90 { background-color: rgba(2, 6, 23, 0.9) !important; }
+    .bg-slate-900 { background-color: #0f172a !important; }
+    .bg-slate-900\/80 { background-color: rgba(15, 23, 42, 0.8) !important; }
+    .bg-slate-900\/90 { background-color: rgba(15, 23, 42, 0.9) !important; }
+    .bg-slate-800 { background-color: #1e293b !important; }
+    .bg-slate-700 { background-color: #334155 !important; }
+    .bg-white { background-color: #ffffff !important; }
+    .bg-emerald-500 { background-color: #10b981 !important; }
+    .bg-emerald-500\/20 { background-color: rgba(16, 185, 129, 0.2) !important; }
+    .bg-emerald-950\/80 { background-color: rgba(2, 44, 34, 0.8) !important; }
+    .bg-indigo-600\/30 { background-color: rgba(79, 70, 229, 0.3) !important; }
+    .bg-gradient-to-r { background: linear-gradient(90deg, #dc2626, #e11d48) !important; }
+    .bg-gradient-to-br { background: linear-gradient(135deg, #ef4444, #be123c) !important; }
+
+    .text-white { color: #ffffff !important; }
+    .text-slate-100 { color: #f1f5f9 !important; }
+    .text-slate-200 { color: #e2e8f0 !important; }
+    .text-slate-300 { color: #cbd5e1 !important; }
+    .text-slate-400 { color: #94a3b8 !important; }
+    .text-slate-500 { color: #64748b !important; }
+    .text-slate-950 { color: #020617 !important; }
+    .text-emerald-300 { color: #6ee7b7 !important; }
+    .text-emerald-400 { color: #34d399 !important; }
+    .text-indigo-300 { color: #a5b4fc !important; }
+    .text-indigo-400 { color: #818cf8 !important; }
+    .text-red-400 { color: #f87171 !important; }
+    .text-red-500 { color: #ef4444 !important; }
+    .text-amber-400 { color: #fbbf24 !important; }
+    .text-amber-500 { color: #f59e0b !important; }
+    .text-rose-400 { color: #fb7185 !important; }
+    .text-rose-500 { color: #f43f5e !important; }
+
+    .text-\[10px\] { font-size: 10px !important; }
+    .text-\[11px\] { font-size: 11px !important; }
+    .text-xs { font-size: 12px !important; }
+    .text-sm { font-size: 14px !important; }
+    .text-base { font-size: 16px !important; }
+    .text-lg { font-size: 18px !important; }
+    .font-normal { font-weight: 400 !important; }
+    .font-medium { font-weight: 500 !important; }
+    .font-bold { font-weight: 700 !important; }
+    .font-black { font-weight: 900 !important; }
+    .font-mono { font-family: "JetBrains Mono", Consolas, monospace !important; }
+    .uppercase { text-transform: uppercase !important; }
+    .tracking-wider { letter-spacing: 0.05em !important; }
+    .tracking-tight { letter-spacing: -0.025em !important; }
+    .text-center { text-align: center !important; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hidden { display: none !important; }
+
+    .relative { position: relative !important; }
+    .absolute { position: absolute !important; }
+    .fixed { position: fixed !important; }
+    .sticky { position: sticky !important; }
+    .top-0 { top: 0 !important; }
+    .top-4 { top: 16px !important; }
+    .right-4 { right: 16px !important; }
+    .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+    .z-40 { z-index: 40 !important; }
+    .z-50 { z-index: 50 !important; }
+    .overflow-hidden { overflow: hidden !important; }
+    .overflow-x-auto { overflow-x: auto !important; }
+    .whitespace-nowrap { white-space: nowrap !important; }
+
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
+    .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06); }
   </style>
 </head>
 <body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
@@ -107,7 +280,7 @@
           <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
           <div>
             <div class="text-xs font-bold text-white uppercase tracking-wider">Unified Cross-Device Synchronization Active</div>
-            <div class="text-[11px] text-slate-400">Open <span class="text-indigo-400 font-mono">/driver</span>, <span class="text-amber-400 font-mono">/civilian</span>, <span class="text-rose-400 font-mono">/hospital</span>, <span class="text-emerald-400 font-mono">/police</span> on real mobile phones for synchronized multi-device demo!</div>
+            <div class="text-[11px] text-slate-400">Open <span class="text-indigo-400 font-mono">driver.html</span>, <span class="text-amber-400 font-mono">civilian.html</span>, <span class="text-rose-400 font-mono">hospital.html</span>, <span class="text-emerald-400 font-mono">police.html</span> on real mobile phones for synchronized multi-device demo!</div>
           </div>
         </div>
 
@@ -137,11 +310,11 @@
               <i data-lucide="ambulance" class="w-4 h-4 text-red-500"></i>
               <span class="text-xs font-black uppercase text-white tracking-wider">1. Ambulance Driver Console</span>
             </div>
-            <a href="/driver" target="_blank" class="text-[11px] text-red-400 hover:underline flex items-center gap-1 font-bold">
+            <a href="driver.html" target="_blank" class="text-[11px] text-red-400 hover:underline flex items-center gap-1 font-bold">
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe id="iframeDriver" src="/driver" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeDriver" src="driver.html" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 2: CIVILIAN V2X RADAR -->
@@ -151,11 +324,11 @@
               <i data-lucide="car" class="w-4 h-4 text-amber-500"></i>
               <span class="text-xs font-black uppercase text-white tracking-wider">2. Connected Vehicle V2X Early Warning</span>
             </div>
-            <a href="/civilian" target="_blank" class="text-[11px] text-amber-400 hover:underline flex items-center gap-1 font-bold">
+            <a href="civilian.html" target="_blank" class="text-[11px] text-amber-400 hover:underline flex items-center gap-1 font-bold">
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe id="iframeCivilian" src="/civilian" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeCivilian" src="civilian.html" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 3: HOSPITAL ER HUB -->
@@ -165,11 +338,11 @@
               <i data-lucide="cross" class="w-4 h-4 text-rose-500"></i>
               <span class="text-xs font-black uppercase text-white tracking-wider">3. Hospital ER Trauma Readiness Hub</span>
             </div>
-            <a href="/hospital" target="_blank" class="text-[11px] text-rose-400 hover:underline flex items-center gap-1 font-bold">
+            <a href="hospital.html" target="_blank" class="text-[11px] text-rose-400 hover:underline flex items-center gap-1 font-bold">
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe id="iframeHospital" src="/hospital" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframeHospital" src="hospital.html" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
         <!-- CARD 4: TRAFFIC POLICE COMMAND -->
@@ -179,11 +352,11 @@
               <i data-lucide="shield" class="w-4 h-4 text-indigo-400"></i>
               <span class="text-xs font-black uppercase text-white tracking-wider">4. Traffic Police Signal Preemption Map</span>
             </div>
-            <a href="/police" target="_blank" class="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-bold">
+            <a href="police.html" target="_blank" class="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-bold">
               Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
           </div>
-          <iframe id="iframePolice" src="/police" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+          <iframe id="iframePolice" src="police.html" class="w-full h-96 border-none bg-[#070b14]"></iframe>
         </div>
 
       </div>
@@ -213,7 +386,7 @@
       </div>
 
       <!-- PRIMARY ACTION: DIRECT 1-TAP APK DOWNLOAD BUTTON -->
-      <a href="/download_apk" download="TrappedAmbulance.apk" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transition active:scale-95 text-center">
+      <a href="TrappedAmbulance.apk" download="TrappedAmbulance.apk" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transition active:scale-95 text-center">
         <i data-lucide="download" class="w-5 h-5"></i>
         📥 DOWNLOAD ANDROID APK (.apk)
       </a>
@@ -251,14 +424,6 @@
   <!-- SCRIPT ENGINE -->
   <script>
     lucide.createIcons();
-    if (window.location.protocol === 'file:') {
-      window.addEventListener('DOMContentLoaded', () => {
-        const d = document.getElementById('iframeDriver'); if (d) d.src = 'driver.html';
-        const c = document.getElementById('iframeCivilian'); if (c) c.src = 'civilian.html';
-        const h = document.getElementById('iframeHospital'); if (h) h.src = 'hospital.html';
-        const p = document.getElementById('iframePolice'); if (p) p.src = 'police.html';
-      });
-    }
     let tourActive = false;
     let tourStep = 0;
     let tourTimer = null;
@@ -284,34 +449,6 @@
 
     function closeQrModal() {
       document.getElementById('qrModal').classList.add('hidden');
-    }
-
-    function switchRoleView(role) {
-      const tabs = ['overview', 'driver', 'civilian', 'hospital', 'police'];
-      tabs.forEach(t => {
-        const el = document.getElementById('tab-' + t);
-        if (el) {
-          if (t === role) {
-            el.className = 'tab-active px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap';
-          } else {
-            el.className = 'px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap';
-          }
-        }
-      });
-
-      const overviewView = document.getElementById('view-overview');
-      const iframeContainer = document.getElementById('view-iframe-container');
-      const roleIframe = document.getElementById('roleIframe');
-
-      if (role === 'overview') {
-        overviewView.classList.remove('hidden');
-        iframeContainer.classList.add('hidden');
-        roleIframe.src = '';
-      } else {
-        overviewView.classList.add('hidden');
-        iframeContainer.classList.remove('hidden');
-        roleIframe.src = role + '.html';
-      }
     }
 
     const broadcast = ('BroadcastChannel' in window) ? new BroadcastChannel('trapped_ambulance_v2x') : null;
@@ -405,7 +542,7 @@
     // PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
       });
     }
   </script>
