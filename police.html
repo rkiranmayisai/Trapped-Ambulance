@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🚦 Traffic Police & City Signal Command Console</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ef4444">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    #map {
+      height: 380px;
+      width: 100%;
+      border-radius: 1.5rem;
+      z-index: 10;
+    }
+    .leaflet-tile {
+      filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+    }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white pb-20 md:pb-6">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-blue-800 flex items-center justify-center shadow-lg shadow-indigo-600/30 text-white">
+        <i data-lucide="shield" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-black tracking-tight text-white">TRAFFIC POLICE COMMAND CENTER</h1>
+          <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full font-mono">
+            CYBERABAD TRAFFIC DIVISION
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">Automated Green Corridor Preemption & Multi-Junction Management</p>
+      </div>
+    </div>
+
+    <!-- ROLE NAVIGATION TABS & CONTROLS -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-medium text-xs">
+      <a href="/" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="grid" class="w-3.5 h-3.5"></i> Portal
+      </a>
+      <a href="/driver" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="ambulance" class="w-3.5 h-3.5 text-red-400"></i> Driver
+      </a>
+      <a href="/civilian" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> Civilian
+      </a>
+      <a href="/hospital" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="cross" class="w-3.5 h-3.5 text-rose-400"></i> Hospital
+      </a>
+      <a href="/police" class="px-2.5 py-1.5 rounded-xl border border-indigo-500/50 bg-indigo-600/20 text-indigo-300 transition flex items-center gap-1 whitespace-nowrap font-bold">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Police
+      </a>
+      <button onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl border-2 border-emerald-400 bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg shadow-emerald-500/20 active:scale-95 whitespace-nowrap">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> 📥 INSTALL APP
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN POLICE CONSOLE -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- KPI SUMMARY STATS -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-slate-900/90 p-4 rounded-3xl border border-slate-800 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase">Preemption Mode</span>
+        <div id="policeModeBadge" class="text-base font-black text-emerald-400 mt-0.5 font-mono">AUTOMATED</div>
+        <span class="text-[9px] text-slate-500">Cloud AI Geofencing</span>
+      </div>
+      <div class="bg-slate-900/90 p-4 rounded-3xl border border-slate-800 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase">Golden Hour Saved</span>
+        <div class="text-xl font-black text-emerald-400 mt-0.5 font-mono">14.8 <span class="text-xs text-slate-400">mins</span></div>
+        <span class="text-[9px] text-emerald-400/80">Avg Per Emergency</span>
+      </div>
+      <div class="bg-slate-900/90 p-4 rounded-3xl border border-slate-800 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase">Active Corridor</span>
+        <div id="activeCorridorCount" class="text-xl font-black text-rose-400 mt-0.5 font-mono">1 ACTIVE</div>
+        <span class="text-[9px] text-rose-300">AMB-911-HYD (Priority 1)</span>
+      </div>
+      <div class="bg-slate-900/90 p-4 rounded-3xl border border-slate-800 text-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase">Civilian Diverted</span>
+        <div id="policeCivCount" class="text-xl font-black text-indigo-300 mt-0.5 font-mono">28 Vehicles</div>
+        <span class="text-[9px] text-slate-500">Lane Shift Verified</span>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE MAP & JUNCTION OVERRIDE CONTROLS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEAFLET GPS MAP -->
+      <div class="lg:col-span-2 bg-slate-900/90 p-5 rounded-3xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="map" class="w-5 h-5 text-indigo-400"></i>
+            <h3 class="text-sm font-black text-white uppercase tracking-wider">Live City Corridor Telematics Map</h3>
+          </div>
+          <div class="flex items-center gap-2 text-xs font-mono">
+            <span class="flex items-center gap-1 text-emerald-400"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> J1 Green</span>
+            <span class="flex items-center gap-1 text-red-400"><span class="w-2 h-2 rounded-full bg-red-400"></span> Ambulance</span>
+          </div>
+        </div>
+
+        <div id="map"></div>
+      </div>
+
+      <!-- JUNCTION OVERRIDE & HARDWARE CONTROLLER -->
+      <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-emerald-400"></i> Signal Manual Override
+            </h3>
+            <span class="text-[10px] font-mono text-slate-400">Police Override</span>
+          </div>
+
+          <!-- JUNCTIONS LIST -->
+          <div class="space-y-3 mt-3">
+            <!-- Junction 1 -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-black text-white">Junction 1: Cyber Gateway</div>
+                  <div class="text-[10px] text-slate-400">Distance: <span id="distJ1Text">380m</span></div>
+                </div>
+                <span id="signalStateJ1" class="text-xs font-mono font-black text-emerald-400 bg-emerald-950 px-2 py-1 rounded-lg border border-emerald-500/40">GREEN</span>
+              </div>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="overrideSignal('J1', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
+                <button onclick="overrideSignal('J1', 'YELLOW_TRANSITION')" class="flex-1 py-1.5 bg-amber-600/30 hover:bg-amber-600/60 text-amber-300 rounded-lg text-[10px] font-bold border border-amber-500/30">Force Yellow</button>
+                <button onclick="overrideSignal('J1', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+              </div>
+            </div>
+
+            <!-- Junction 2 -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-black text-white">Junction 2: Hitech Metro</div>
+                  <div class="text-[10px] text-slate-400">Distance: 740m</div>
+                </div>
+                <span id="signalStateJ2" class="text-xs font-mono font-black text-amber-400 bg-amber-950 px-2 py-1 rounded-lg border border-amber-500/40">YELLOW</span>
+              </div>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="overrideSignal('J2', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
+                <button onclick="overrideSignal('J2', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+              </div>
+            </div>
+
+            <!-- Junction 3 -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-black text-white">Junction 3: Hospital Approach</div>
+                  <div class="text-[10px] text-slate-400">Distance: 1.1 km</div>
+                </div>
+                <span id="signalStateJ3" class="text-xs font-mono font-black text-slate-400 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">NORMAL</span>
+              </div>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="overrideSignal('J3', 'GREEN_CORRIDOR')" class="flex-1 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/60 text-emerald-300 rounded-lg text-[10px] font-bold border border-emerald-500/30">Force Green</button>
+                <button onclick="overrideSignal('J3', 'NORMAL_CYCLE')" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] font-bold border border-slate-700">Auto Cycle</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- QUICK SYSTEM RESET -->
+        <button onclick="resetSystemToDefault()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs border border-slate-700 transition active:scale-95 flex items-center justify-center gap-2">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset All Signals to Normal Flow
+        </button>
+      </div>
+
+    </div>
+
+    <!-- MULTI-AMBULANCE CONFLICT RESOLUTION TABLE & EVENT LOGS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- CONFLICT RESOLUTION MATRIX -->
+      <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="git-merge" class="w-5 h-5 text-amber-400"></i>
+            <h3 class="text-sm font-black text-white uppercase tracking-wider">Multi-Ambulance Priority Queue</h3>
+          </div>
+          <span class="text-[10px] font-mono text-emerald-400">Auto-Resolved</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-800">
+                <th class="pb-2">Vehicle</th>
+                <th class="pb-2">Triage Level</th>
+                <th class="pb-2">Target Junction</th>
+                <th class="pb-2">ETA</th>
+                <th class="pb-2">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono text-[11px]">
+              <tr class="text-white">
+                <td class="py-2.5 font-bold text-red-400">AMB-911-HYD</td>
+                <td><span class="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-bold">Grade 1 (Critical)</span></td>
+                <td>J1 - Cyber Gateway</td>
+                <td class="text-amber-400">24s</td>
+                <td><span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">PREEMPTED</span></td>
+              </tr>
+              <tr class="text-slate-400">
+                <td class="py-2.5 font-semibold">AMB-304-SEC</td>
+                <td><span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">Grade 3 (Stable)</span></td>
+                <td>J1 - Cyber Gateway</td>
+                <td>140s</td>
+                <td><span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">QUEUED (P2)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- EVENT ACTIVITY LOGS -->
+      <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="terminal" class="w-5 h-5 text-emerald-400"></i>
+            <h3 class="text-sm font-black text-white uppercase tracking-wider">Live Preemption Event Log</h3>
+          </div>
+          <span class="text-[10px] font-mono text-slate-400">Real-Time Audit</span>
+        </div>
+
+        <div id="eventLogContainer" class="space-y-1.5 max-h-44 overflow-y-auto font-mono text-[11px] pr-2">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAV BAR FOR QUICK ROLE SWITCHING -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-2 flex justify-around items-center">
+    <a href="/" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
+      <i data-lucide="layout-grid" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Portal</span>
+    </a>
+    <a href="/driver" class="flex flex-col items-center text-slate-400 hover:text-red-400 py-1">
+      <i data-lucide="ambulance" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Driver</span>
+    </a>
+    <a href="/civilian" class="flex flex-col items-center text-slate-400 hover:text-amber-400 py-1">
+      <i data-lucide="car" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Civilian</span>
+    </a>
+    <a href="/hospital" class="flex flex-col items-center text-slate-400 hover:text-cyan-400 py-1">
+      <i data-lucide="cross" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Hospital</span>
+    </a>
+    <a href="/police" class="flex flex-col items-center text-indigo-400 py-1">
+      <i data-lucide="shield" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Police</span>
+    </a>
+  </nav>
+
+  <!-- SCRIPT & LEAFLET MAP INITIALIZATION -->
+  <script>
+    lucide.createIcons();
+    let map = null;
+    let ambulanceMarker = null;
+    let hospitalMarker = null;
+    let junctionMarkers = {};
+    let geofenceCircle = null;
+
+    function initMap() {
+      map = L.map('map').setView([17.4480, 78.3820], 14);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Hospital Icon
+      const hospitalIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<div style='background-color:#e11d48; color:white; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid white; box-shadow:0 0 15px #e11d48;'>🏥</div>",
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+      hospitalMarker = L.marker([17.4560, 78.3920], {icon: hospitalIcon}).addTo(map)
+        .bindPopup("<b>Care Hospital Emergency Bay</b><br>Operating Theatre Prepared");
+
+      // Ambulance Icon
+      const ambIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: "<div style='background-color:#ef4444; color:white; width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; border:2px solid white; box-shadow:0 0 20px #ef4444;' class='animate-bounce'>🚑</div>",
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+      ambulanceMarker = L.marker([17.4400, 78.3750], {icon: ambIcon}).addTo(map)
+        .bindPopup("<b>Ambulance AMB-911-HYD</b><br>Speed: 65 km/h • Critical Patient");
+
+      // Junction Markers
+      const junctions = [
+        { id: 'J1', name: 'Junction 1: Cyber Gateway', lat: 17.4442, lng: 78.3802 },
+        { id: 'J2', name: 'Junction 2: Hitech Metro', lat: 17.4495, lng: 78.3855 },
+        { id: 'J3', name: 'Junction 3: Hospital Approach', lat: 17.4540, lng: 78.3900 }
+      ];
+
+      junctions.forEach(j => {
+        const jIcon = L.divIcon({
+          className: 'custom-div-icon',
+          html: `<div id="mapIcon_${j.id}" style='background-color:#10b981; color:white; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; border:2px solid white; box-shadow:0 0 10px #10b981;'>🚦</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+        junctionMarkers[j.id] = L.marker([j.lat, j.lng], {icon: jIcon}).addTo(map)
+          .bindPopup(`<b>${j.name}</b><br>Dynamic Preemption Node`);
+      });
+
+      // Geofence Circle around J1 (500m)
+      geofenceCircle = L.circle([17.4442, 78.3802], {
+        color: '#ef4444',
+        fillColor: '#ef4444',
+        fillOpacity: 0.15,
+        radius: 500
+      }).addTo(map).bindPopup("500m Dynamic Preemption Geofence");
+
+      // Draw corridor polyline
+      const pathCoordinates = [
+        [17.4400, 78.3750],
+        [17.4442, 78.3802],
+        [17.4495, 78.3855],
+        [17.4540, 78.3900],
+        [17.4560, 78.3920]
+      ];
+      L.polyline(pathCoordinates, {color: '#10b981', weight: 4, opacity: 0.8, dashArray: '8, 8'}).addTo(map);
+    }
+
+    // Manual Signal Override
+    async function overrideSignal(signalId, state) {
+      try {
+        const res = await fetch('/api/signal/override', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ signal_id: signalId, state })
+        });
+        const data = await res.json();
+        alert(`🚦 Police Override Executed: ${signalId} forced to ${state}`);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Reset System
+    async function resetSystemToDefault() {
+      try {
+        await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode: 'reset' })
+        });
+      } catch (e) {}
+    }
+
+    // Update Police UI from state
+    function updatePoliceUI(state) {
+      if (!state) return;
+
+      if (state.ambulance_distance !== undefined) {
+        document.getElementById('distJ1Text').innerText = Math.round(state.ambulance_distance) + 'm';
+      }
+
+      if (state.civilian_alerts) {
+        document.getElementById('policeCivCount').innerText = (state.civilian_alerts.acknowledged_count || 28) + ' Vehicles';
+      }
+
+      if (state.police_console) {
+        document.getElementById('policeModeBadge').innerText = state.police_console.mode === 'MANUAL_OVERRIDE' ? 'MANUAL' : 'AUTOMATED';
+        document.getElementById('activeCorridorCount').innerText = state.police_console.green_corridor_active ? '1 ACTIVE' : '0 ACTIVE';
+      }
+
+      // Update signal badges
+      if (state.all_signals) {
+        const j1 = state.all_signals.J1;
+        if (j1) {
+          const badge = document.getElementById('signalStateJ1');
+          badge.innerText = j1.state;
+          if (j1.state === 'GREEN_CORRIDOR') {
+            badge.className = 'text-xs font-mono font-black text-emerald-400 bg-emerald-950 px-2 py-1 rounded-lg border border-emerald-500/40';
+          } else if (j1.state === 'YELLOW_TRANSITION') {
+            badge.className = 'text-xs font-mono font-black text-amber-400 bg-amber-950 px-2 py-1 rounded-lg border border-amber-500/40';
+          } else {
+            badge.className = 'text-xs font-mono font-black text-slate-400 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700';
+          }
+        }
+      }
+
+      // Update event logs
+      if (state.event_logs) {
+        const container = document.getElementById('eventLogContainer');
+        container.innerHTML = state.event_logs.map(log => {
+          let color = 'text-slate-400';
+          if (log.type === 'success') color = 'text-emerald-400';
+          if (log.type === 'warning') color = 'text-amber-400';
+          if (log.type === 'error') color = 'text-rose-400';
+          return `<div class="flex gap-2"><span class="text-slate-500">[${log.time}]</span><span class="${color}">${log.text}</span></div>`;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    // SSE Connection
+    function initSSE() {
+      const evtSource = new EventSource('/api/stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const state = JSON.parse(e.data);
+          updatePoliceUI(state);
+        } catch(err) {
+          console.error(err);
+        }
+      };
+      evtSource.onerror = function() {
+        setTimeout(initSSE, 3000);
+      };
+    }
+
+    // Service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') return;
+        deferredPrompt = null;
+      }
+      window.location.href = '/download_apk';
+    }
+
+    window.onload = function() {
+      initMap();
+      initSSE();
+    };
+  </script>
+</body>
+</html>

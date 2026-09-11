@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🚑 Trapped Ambulance — Smart Green Corridor & Life-Saving Preemption System</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ef4444">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QR Code Generator -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    .tour-banner { background: linear-gradient(90deg, #dc2626, #4f46e5, #059669); }
+    .custom-scroll::-webkit-scrollbar { width: 4px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    .tab-active {
+      background: rgba(239, 68, 68, 0.2) !important;
+      color: #f87171 !important;
+      border-color: rgba(239, 68, 68, 0.6) !important;
+    }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+
+  <!-- TOP HIGH-IMPACT EXPLAINER BANNER -->
+  <div id="autoTourBanner" class="tour-banner text-white px-4 sm:px-6 py-2 flex items-center justify-between text-xs font-bold shadow-xl">
+    <div class="flex items-center gap-2">
+      <i data-lucide="play-circle" class="w-4 h-4 animate-bounce flex-shrink-0"></i>
+      <span id="tourStatusText" class="truncate">🏆 DEMO STORY MODE: Click "PLAY 4-PHASE STORY" to watch Driver ➔ V2X Alert ➔ Green Corridor ➔ ER Handover!</span>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button id="btnStartTour" onclick="startStoryTour()" class="px-3 py-1 bg-white text-slate-950 hover:bg-slate-200 font-black rounded-lg shadow-lg transition flex items-center gap-1 active:scale-95 text-[11px]">
+        <i data-lucide="play" class="w-3.5 h-3.5 fill-slate-950"></i> PLAY STORY
+      </button>
+      <button id="btnStopTour" onclick="stopStoryTour()" class="hidden px-2.5 py-1 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[11px]">
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- TOP APP BAR -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-40 px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-700 flex items-center justify-center shadow-lg shadow-red-500/30 text-white">
+          <i data-lucide="ambulance" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-black tracking-tight text-white">TRAPPED AMBULANCE</h1>
+            <span class="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
+              PWA 4-IN-1 ECOSYSTEM
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">Automated Green Corridor Preemption & V2X Life-Saving System</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROLE NAVIGATION TABS -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-medium text-xs">
+      <a href="/" class="tab-active px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="grid" class="w-3.5 h-3.5"></i> Split Multi-View
+      </a>
+      <a href="/driver" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="ambulance" class="w-3.5 h-3.5 text-red-400"></i> Driver App
+      </a>
+      <a href="/civilian" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> Civilian Radar
+      </a>
+      <a href="/hospital" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="cross" class="w-3.5 h-3.5 text-rose-400"></i> Hospital ER
+      </a>
+      <a href="/police" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Police Map
+      </a>
+      <button id="btnNativeInstall" onclick="handleDirectAppInstall()" class="px-3.5 py-1.5 rounded-xl border-2 border-emerald-400 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black transition flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-emerald-500/30 active:scale-95">
+        <i data-lucide="download" class="w-4 h-4 text-slate-950"></i> 📥 INSTALL APP
+      </button>
+      <a href="/pdf" target="_blank" class="px-3 py-1.5 rounded-xl border border-indigo-500/40 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 transition flex items-center gap-1.5 whitespace-nowrap font-bold">
+        <i data-lucide="file-text" class="w-3.5 h-3.5"></i> PDF
+      </a>
+    </div>
+
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="flex-1 w-full p-4 sm:p-6">
+    
+    <!-- 1. SPLIT MULTI-VIEW (DEFAULT OVERVIEW) -->
+    <div id="view-overview" class="space-y-6">
+      
+      <!-- QUICK ACTION CONTROLLER STRIP -->
+      <div class="bg-slate-900/90 p-4 rounded-3xl border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
+          <div>
+            <div class="text-xs font-bold text-white uppercase tracking-wider">Unified Cross-Device Synchronization Active</div>
+            <div class="text-[11px] text-slate-400">Open <span class="text-indigo-400 font-mono">/driver</span>, <span class="text-amber-400 font-mono">/civilian</span>, <span class="text-rose-400 font-mono">/hospital</span>, <span class="text-emerald-400 font-mono">/police</span> on real mobile phones for synchronized multi-device demo!</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="triggerEmergencyFromPortal('start')" class="px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold rounded-xl text-xs uppercase shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <i data-lucide="siren" class="w-4 h-4"></i> Trigger Corridor
+          </button>
+          <button onclick="triggerEmergencyFromPortal('pass')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs uppercase border border-slate-700 active:scale-95">
+            Pass J1
+          </button>
+          <button onclick="triggerEmergencyFromPortal('hospital_arrived')" class="px-3 py-2 bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 font-bold rounded-xl text-xs uppercase border border-emerald-800/60 active:scale-95">
+            ER Arrived
+          </button>
+          <button onclick="triggerEmergencyFromPortal('reset')" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold rounded-xl text-xs uppercase active:scale-95">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4-ROLE SPLIT SCREEN CAROUSEL / GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- CARD 1: AMBULANCE DRIVER -->
+        <div class="bg-slate-900/80 rounded-3xl border border-slate-800 overflow-hidden flex flex-col shadow-xl">
+          <div class="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="ambulance" class="w-4 h-4 text-red-500"></i>
+              <span class="text-xs font-black uppercase text-white tracking-wider">1. Ambulance Driver Console</span>
+            </div>
+            <a href="/driver" target="_blank" class="text-[11px] text-red-400 hover:underline flex items-center gap-1 font-bold">
+              Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+          </div>
+          <iframe src="/driver" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+        </div>
+
+        <!-- CARD 2: CIVILIAN V2X RADAR -->
+        <div class="bg-slate-900/80 rounded-3xl border border-slate-800 overflow-hidden flex flex-col shadow-xl">
+          <div class="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="car" class="w-4 h-4 text-amber-500"></i>
+              <span class="text-xs font-black uppercase text-white tracking-wider">2. Connected Vehicle V2X Early Warning</span>
+            </div>
+            <a href="/civilian" target="_blank" class="text-[11px] text-amber-400 hover:underline flex items-center gap-1 font-bold">
+              Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+          </div>
+          <iframe src="/civilian" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+        </div>
+
+        <!-- CARD 3: HOSPITAL ER HUB -->
+        <div class="bg-slate-900/80 rounded-3xl border border-slate-800 overflow-hidden flex flex-col shadow-xl">
+          <div class="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="cross" class="w-4 h-4 text-rose-500"></i>
+              <span class="text-xs font-black uppercase text-white tracking-wider">3. Hospital ER Trauma Readiness Hub</span>
+            </div>
+            <a href="/hospital" target="_blank" class="text-[11px] text-rose-400 hover:underline flex items-center gap-1 font-bold">
+              Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+          </div>
+          <iframe src="/hospital" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+        </div>
+
+        <!-- CARD 4: TRAFFIC POLICE COMMAND -->
+        <div class="bg-slate-900/80 rounded-3xl border border-slate-800 overflow-hidden flex flex-col shadow-xl">
+          <div class="p-4 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i data-lucide="shield" class="w-4 h-4 text-indigo-400"></i>
+              <span class="text-xs font-black uppercase text-white tracking-wider">4. Traffic Police Signal Preemption Map</span>
+            </div>
+            <a href="/police" target="_blank" class="text-[11px] text-indigo-400 hover:underline flex items-center gap-1 font-bold">
+              Open Full App <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+          </div>
+          <iframe src="/police" class="w-full h-96 border-none bg-[#070b14]"></iframe>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 2. EMBEDDED SINGLE ROLE FULL-SCREEN VIEWS -->
+    <div id="view-iframe-container" class="hidden w-full h-[calc(100vh-140px)] rounded-3xl overflow-hidden border border-slate-800 bg-[#070b14]">
+      <iframe id="roleIframe" src="" class="w-full h-full border-none bg-[#070b14]"></iframe>
+    </div>
+
+  </main>
+
+  <!-- QR CODE & APK DOWNLOAD MODAL FOR PHONE INSTALLATION -->
+  <div id="qrModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl relative">
+      <button onclick="closeQrModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-xl bg-slate-800">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/20">
+          <i data-lucide="smartphone" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-black text-white">Install App on your Android Phone</h3>
+        <p class="text-xs text-slate-400">Choose Direct APK Download or scan QR code</p>
+      </div>
+
+      <!-- PRIMARY ACTION: DIRECT 1-TAP APK DOWNLOAD BUTTON -->
+      <a href="/download_apk" download="TrappedAmbulance.apk" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 transition active:scale-95 text-center">
+        <i data-lucide="download" class="w-5 h-5"></i>
+        📥 DOWNLOAD ANDROID APK (.apk)
+      </a>
+
+      <!-- QR Code Canvas Container -->
+      <div class="bg-white p-3 rounded-2xl flex items-center justify-center mx-auto w-44 h-44 shadow-inner">
+        <div id="qrcodeCanvas"></div>
+      </div>
+
+      <!-- Instructions List -->
+      <div class="space-y-2 text-xs text-slate-300 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+        <div class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">1</span>
+          <span>Tap <b>"Download Android APK"</b> or scan QR with Phone Camera.</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">2</span>
+          <span>When download finishes, tap <b>"Open"</b> (allow unknown sources if prompted).</span>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-[11px] flex-shrink-0 mt-0.5">3</span>
+          <span>Tap <b>"Install"</b> — The <b>Trapped Ambulance</b> app will be installed on your phone home screen!</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+        <a href="https://politics-exhibit-edwards-majority.trycloudflare.com" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1 font-mono">
+          <i data-lucide="globe" class="w-3.5 h-3.5"></i> Open Web App
+        </a>
+        <span class="text-slate-500 font-mono text-[10px]">Author: Reddy Kiranmayi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    lucide.createIcons();
+    let tourActive = false;
+    let tourStep = 0;
+    let tourTimer = null;
+    let qrGenerated = false;
+
+    function openQrModal() {
+      document.getElementById('qrModal').classList.remove('hidden');
+      if (!qrGenerated) {
+        const qrContainer = document.getElementById('qrcodeCanvas');
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+          text: "https://politics-exhibit-edwards-majority.trycloudflare.com",
+          width: 160,
+          height: 160,
+          colorDark : "#070b14",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+        });
+        qrGenerated = true;
+      }
+      lucide.createIcons();
+    }
+
+    function closeQrModal() {
+      document.getElementById('qrModal').classList.add('hidden');
+    }
+
+    function switchRoleView(role) {
+      const tabs = ['overview', 'driver', 'civilian', 'hospital', 'police'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (el) {
+          if (t === role) {
+            el.className = 'tab-active px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap';
+          } else {
+            el.className = 'px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap';
+          }
+        }
+      });
+
+      const overviewView = document.getElementById('view-overview');
+      const iframeContainer = document.getElementById('view-iframe-container');
+      const roleIframe = document.getElementById('roleIframe');
+
+      if (role === 'overview') {
+        overviewView.classList.remove('hidden');
+        iframeContainer.classList.add('hidden');
+        roleIframe.src = '';
+      } else {
+        overviewView.classList.add('hidden');
+        iframeContainer.classList.remove('hidden');
+        roleIframe.src = '/' + role;
+      }
+    }
+
+    async function triggerEmergencyFromPortal(mode) {
+      try {
+        await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode })
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // 4-PHASE HACKATHON STORY TOUR
+    const tourPhases = [
+      {
+        text: "PHASE 1: Critical Cardiac Patient in Ambulance (AMB-911-HYD) stuck 850m from junction.",
+        action: () => triggerEmergencyFromPortal('reset')
+      },
+      {
+        text: "PHASE 2: Driver hits 1-Tap Preemption -> Signal J1 turns GREEN, Cross-Traffic Stopped!",
+        action: () => triggerEmergencyFromPortal('start')
+      },
+      {
+        text: "PHASE 3: Nearby Civilian Cars receive V2X Audio Alarm & steer left. Route cleared!",
+        action: async () => {
+          await fetch('/api/civilian/acknowledge', {method: 'POST'});
+        }
+      },
+      {
+        text: "PHASE 4: Ambulance arrives at Care Hospital ER. Operating Bay 02 & Blood Bank ready with ZERO delay!",
+        action: () => triggerEmergencyFromPortal('hospital_arrived')
+      }
+    ];
+
+    function startStoryTour() {
+      tourActive = true;
+      tourStep = 0;
+      document.getElementById('btnStartTour').classList.add('hidden');
+      document.getElementById('btnStopTour').classList.remove('hidden');
+      runNextTourStep();
+    }
+
+    function stopStoryTour() {
+      tourActive = false;
+      if (tourTimer) clearTimeout(tourTimer);
+      document.getElementById('btnStartTour').classList.remove('hidden');
+      document.getElementById('btnStopTour').classList.add('hidden');
+      document.getElementById('tourStatusText').innerText = '🏆 DEMO STORY MODE: Click "PLAY 4-PHASE STORY" to watch Driver ➔ V2X Alert ➔ Green Corridor ➔ ER Handover!';
+    }
+
+    function runNextTourStep() {
+      if (!tourActive) return;
+      if (tourStep >= tourPhases.length) {
+        stopStoryTour();
+        return;
+      }
+      const p = tourPhases[tourStep];
+      document.getElementById('tourStatusText').innerText = `[${tourStep + 1}/4] ${p.text}`;
+      p.action();
+      tourStep++;
+      tourTimer = setTimeout(runNextTourStep, 7000);
+    }
+
+    // Native PWA Installation Prompt Engine
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    async function handleDirectAppInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User installed the PWA app');
+        }
+        deferredPrompt = null;
+      } else {
+        openQrModal();
+      }
+    }
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+      });
+    }
+  </script>
+</body>
+</html>

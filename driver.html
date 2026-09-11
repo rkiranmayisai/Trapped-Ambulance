@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🚑 Ambulance Driver Telematics & Triage Console</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ef4444">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-neon-red { animation: pulse-ring 1.5s infinite ease-in-out; }
+
+    .glow-green { box-shadow: 0 0 35px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(16, 185, 129, 0.4); }
+    .glow-red { box-shadow: 0 0 35px rgba(239, 68, 68, 0.6), inset 0 0 15px rgba(239, 68, 68, 0.4); }
+    .glow-yellow { box-shadow: 0 0 35px rgba(245, 158, 11, 0.6), inset 0 0 15px rgba(245, 158, 11, 0.4); }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white pb-20 md:pb-6">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg shadow-red-500/30 text-white">
+        <i data-lucide="ambulance" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-black tracking-tight text-white">AMB-911-HYD</h1>
+          <span id="gpsStatusBadge" class="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> GPS 5G LOCK
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">Apollo Emergency Fleet • In-Vehicle Telematics Unit</p>
+      </div>
+    </div>
+
+    <!-- ROLE NAVIGATION TABS & CONTROLS -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-medium text-xs">
+      <a href="/" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="grid" class="w-3.5 h-3.5"></i> Portal
+      </a>
+      <a href="/driver" class="px-3 py-1.5 rounded-xl border border-red-500/50 bg-red-600/20 text-red-300 transition flex items-center gap-1.5 whitespace-nowrap font-bold">
+        <i data-lucide="ambulance" class="w-3.5 h-3.5 text-red-400"></i> Driver
+      </a>
+      <a href="/civilian" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> Civilian
+      </a>
+      <a href="/hospital" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="cross" class="w-3.5 h-3.5 text-rose-400"></i> Hospital
+      </a>
+      <a href="/police" class="px-3 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1.5 whitespace-nowrap">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Police
+      </a>
+      <button id="btnVoiceToggle" onclick="toggleVoice()" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-1.5">
+        <i data-lucide="volume-2" class="w-4 h-4 text-emerald-400"></i>
+      </button>
+      <button onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl border-2 border-emerald-400 bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg shadow-emerald-500/20 active:scale-95 whitespace-nowrap">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> 📥 INSTALL APP
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN DRIVER COCKPIT -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- HERO PREEMPTION STATUS BANNER -->
+    <div id="statusBanner" class="p-4 sm:p-6 rounded-3xl bg-slate-900 border-2 border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-300">
+      
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <div id="signalLightBulb" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-800 border-2 border-slate-700 flex flex-col items-center justify-center text-center transition-all duration-300">
+          <i id="signalIcon" data-lucide="traffic-cone" class="w-8 h-8 text-slate-400"></i>
+          <span id="signalShortText" class="text-[10px] font-black uppercase mt-1 text-slate-400">STANDBY</span>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <span>Target Intersection</span>
+            <span id="currentJunctionBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">J1 - Cyber Gateway</span>
+          </div>
+          <h2 id="corridorHeadline" class="text-xl sm:text-2xl font-black text-white mt-0.5">Normal Traffic Cycle</h2>
+          <p id="corridorSubtext" class="text-xs text-slate-400 mt-1">Preemption inactive. Standard traffic countdown active.</p>
+        </div>
+      </div>
+
+      <!-- SPEED & DISTANCE & ETA HUD -->
+      <div class="grid grid-cols-3 gap-3 w-full md:w-auto text-center">
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+          <span class="text-[10px] font-bold text-slate-500 uppercase">Speed</span>
+          <div class="text-xl sm:text-2xl font-black font-mono text-white"><span id="speedValue">62</span> <span class="text-xs font-normal text-slate-400">km/h</span></div>
+        </div>
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+          <span class="text-[10px] font-bold text-slate-500 uppercase">Junction Dist</span>
+          <div class="text-xl sm:text-2xl font-black font-mono text-emerald-400"><span id="distValue">380</span> <span class="text-xs font-normal text-slate-400">m</span></div>
+        </div>
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+          <span class="text-[10px] font-bold text-slate-500 uppercase">Hospital ETA</span>
+          <div class="text-xl sm:text-2xl font-black font-mono text-amber-400"><span id="etaValue">24</span> <span class="text-xs font-normal text-slate-400">s</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PRIMARY ACTION: MASSIVE 1-TAP EMERGENCY ACTIVATOR -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <div class="md:col-span-2 bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-6">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-red-400 flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-4 h-4"></i> V2X Cloud Signal Preemption
+            </span>
+            <span class="text-xs font-mono text-slate-400">Geofence: 500m Auto-Trigger</span>
+          </div>
+          <h3 class="text-lg font-black text-white mt-1">One-Touch Dynamic Green Corridor</h3>
+          <p class="text-xs text-slate-400">Forces traffic signals ahead to turn Green, clears cross-traffic, and alerts civilian vehicles in path.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button id="btnEmergencyTrigger" onclick="toggleEmergency()" class="flex-1 py-5 px-6 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-base sm:text-lg uppercase tracking-wider shadow-xl shadow-red-600/30 flex items-center justify-center gap-3 transition-all active:scale-95">
+            <i data-lucide="siren" class="w-7 h-7 animate-bounce"></i>
+            <span id="btnTriggerText">ACTIVATE GREEN CORRIDOR</span>
+          </button>
+          
+          <button id="btnSimulatePass" onclick="simulateJunctionPass()" class="py-5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm uppercase tracking-wider border border-slate-700 flex items-center justify-center gap-2 active:scale-95">
+            <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+            <span>Pass Junction</span>
+          </button>
+
+          <button id="btnHospitalArrive" onclick="simulateHospitalArrival()" class="py-5 px-5 rounded-2xl bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 font-bold text-sm uppercase tracking-wider border border-emerald-800/60 flex items-center justify-center gap-2 active:scale-95">
+            <i data-lucide="building-2" class="w-5 h-5 text-emerald-400"></i>
+            <span>Arrived at ER</span>
+          </button>
+        </div>
+
+        <!-- SIMULATE LIVE SPEED & DISTANCE SLIDERS -->
+        <div class="pt-4 border-t border-slate-800/80 space-y-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
+            <span>Simulate Distance to Signal J1:</span>
+            <span id="sliderDistLabel" class="font-mono text-emerald-400 font-bold">380 meters</span>
+          </div>
+          <input type="range" id="distSlider" min="0" max="1000" step="20" value="380" oninput="onDistanceSlider(this.value)" class="w-full accent-emerald-500 bg-slate-800 rounded-lg cursor-pointer">
+
+          <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
+            <span>Ambulance Cruising Speed:</span>
+            <span id="sliderSpeedLabel" class="font-mono text-white font-bold">65 km/h</span>
+          </div>
+          <input type="range" id="speedSlider" min="20" max="120" step="5" value="65" oninput="onSpeedSlider(this.value)" class="w-full accent-red-500 bg-slate-800 rounded-lg cursor-pointer">
+        </div>
+      </div>
+
+      <!-- ROUTE PROGRESS STACK -->
+      <div class="bg-slate-900/90 p-5 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="map-pin" class="w-4 h-4 text-emerald-400"></i> Active Corridor Route
+          </h4>
+          <span class="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">3 Junctions</span>
+        </div>
+
+        <div class="space-y-3 relative pl-4 border-l-2 border-slate-800">
+          <!-- Dispatch -->
+          <div class="relative">
+            <div class="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-slate-600 border-2 border-[#070b14]"></div>
+            <div class="text-xs font-bold text-slate-300">Ambulance Base Station</div>
+            <div class="text-[10px] text-slate-500">Dispatched • 14:38</div>
+          </div>
+          <!-- J1 -->
+          <div class="relative">
+            <div id="dotJ1" class="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#070b14] animate-ping"></div>
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-white">J1: Cyber Gateway</div>
+              <span id="badgeJ1" class="text-[10px] font-mono font-bold text-emerald-400">GREEN</span>
+            </div>
+            <div class="text-[10px] text-slate-400">Distance: <span id="routeDistJ1">380m</span> • Corridor Active</div>
+          </div>
+          <!-- J2 -->
+          <div class="relative">
+            <div id="dotJ2" class="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-amber-500 border-2 border-[#070b14]"></div>
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-slate-300">J2: Hitech Metro</div>
+              <span id="badgeJ2" class="text-[10px] font-mono text-amber-400">PREP</span>
+            </div>
+            <div class="text-[10px] text-slate-500">Distance: 740m • Next Preemption</div>
+          </div>
+          <!-- J3 -->
+          <div class="relative">
+            <div id="dotJ3" class="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-slate-700 border-2 border-[#070b14]"></div>
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-bold text-slate-400">J3: Hospital Approach</div>
+              <span id="badgeJ3" class="text-[10px] font-mono text-slate-500">QUEUED</span>
+            </div>
+            <div class="text-[10px] text-slate-500">Distance: 1.1km</div>
+          </div>
+          <!-- ER Destination -->
+          <div class="relative">
+            <div class="absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full bg-rose-500 border-2 border-[#070b14]"></div>
+            <div class="text-xs font-bold text-rose-300">Care Hospital Emergency</div>
+            <div class="text-[10px] text-slate-400">Trauma Bay 02 Reserved</div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
+          <i data-lucide="radio" class="w-4 h-4 text-indigo-400 flex-shrink-0 animate-pulse"></i>
+          <span>V2X Telematics connected to City Preemption Server</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PATIENT TRIAGE & VITALS LOGGER -->
+    <div class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="heart-pulse" class="w-5 h-5 text-red-500 animate-pulse"></i>
+          <h3 class="text-base font-black text-white">In-Transit Patient Triage & Vitals Stream</h3>
+        </div>
+        <span class="text-xs text-slate-400">Streams live to Hospital Trauma Center</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Patient Name -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Patient Name & ID</label>
+          <input type="text" id="inputPatientName" value="Ramesh Verma (54M)" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none mt-1">
+        </div>
+
+        <!-- Heart Rate -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Heart Rate (BPM)</label>
+          <div class="flex items-center justify-between mt-1">
+            <input type="number" id="inputHeartRate" value="126" class="w-20 bg-transparent text-xl font-black font-mono text-red-400 focus:outline-none">
+            <span class="text-xs text-red-400/80 font-bold">bpm</span>
+          </div>
+        </div>
+
+        <!-- SpO2 -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Oxygen (SpO2 %)</label>
+          <div class="flex items-center justify-between mt-1">
+            <input type="number" id="inputSpo2" value="91" class="w-20 bg-transparent text-xl font-black font-mono text-cyan-400 focus:outline-none">
+            <span class="text-xs text-cyan-400/80 font-bold">%</span>
+          </div>
+        </div>
+
+        <!-- Blood Pressure -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Blood Pressure</label>
+          <input type="text" id="inputBP" value="155/100" class="w-full bg-transparent text-lg font-black font-mono text-amber-400 focus:outline-none mt-1">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Trauma Priority Grade -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Triage Trauma Grade</label>
+          <select id="selectTraumaGrade" class="w-full bg-slate-900 text-sm font-bold text-red-400 rounded-xl p-2 border border-slate-700 mt-1 focus:outline-none">
+            <option value="CRITICAL (Grade 1)">CRITICAL (Grade 1 - Immediate Resuscitation)</option>
+            <option value="URGENT (Grade 2)">URGENT (Grade 2 - Fast Preemption)</option>
+            <option value="STABLE (Grade 3)">STABLE (Grade 3 - Standard Transport)</option>
+          </select>
+        </div>
+
+        <!-- Condition Description -->
+        <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+          <label class="text-[10px] font-bold text-slate-400 uppercase">Suspected Condition</label>
+          <input type="text" id="inputCondition" value="Acute Coronary Syndrome / ST-Elevation" class="w-full bg-transparent text-xs font-semibold text-slate-200 focus:outline-none mt-2">
+        </div>
+
+        <!-- Blood Group & Update Button -->
+        <div class="flex gap-2 items-end">
+          <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase">Blood Group</label>
+            <input type="text" id="inputBloodGroup" value="B+ Positive" class="w-full bg-transparent text-sm font-black font-mono text-white focus:outline-none mt-1">
+          </div>
+          <button onclick="savePatientVitals()" class="py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-2xl shadow-lg transition flex items-center gap-1.5 active:scale-95">
+            <i data-lucide="send" class="w-4 h-4"></i> Sync Vitals
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAV BAR FOR QUICK ROLE SWITCHING -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-2 flex justify-around items-center">
+    <a href="/" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
+      <i data-lucide="layout-grid" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Portal</span>
+    </a>
+    <a href="/driver" class="flex flex-col items-center text-red-400 py-1">
+      <i data-lucide="ambulance" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Driver</span>
+    </a>
+    <a href="/civilian" class="flex flex-col items-center text-slate-400 hover:text-amber-400 py-1">
+      <i data-lucide="car" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Civilian</span>
+    </a>
+    <a href="/hospital" class="flex flex-col items-center text-slate-400 hover:text-cyan-400 py-1">
+      <i data-lucide="cross" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Hospital</span>
+    </a>
+    <a href="/police" class="flex flex-col items-center text-slate-400 hover:text-indigo-400 py-1">
+      <i data-lucide="shield" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Police</span>
+    </a>
+  </nav>
+
+  <!-- JAVASCRIPT ENGINE -->
+  <script>
+    lucide.createIcons();
+    let isEmergency = false;
+    let voiceAlerts = true;
+    let lastSpokenSignal = '';
+
+    // Web Speech API Assistant
+    function speakVoice(text) {
+      if (!voiceAlerts || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleVoice() {
+      voiceAlerts = !voiceAlerts;
+      const btn = document.getElementById('btnVoiceToggle');
+      if (voiceAlerts) {
+        btn.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4 text-emerald-400"></i><span class="hidden sm:inline text-xs">Voice Alerts</span>';
+        speakVoice('Voice navigation assistance enabled.');
+      } else {
+        btn.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4 text-slate-500"></i><span class="hidden sm:inline text-xs">Voice Muted</span>';
+      }
+      lucide.createIcons();
+    }
+
+    // Toggle Emergency Green Corridor
+    async function toggleEmergency() {
+      const mode = isEmergency ? 'reset' : 'start';
+      try {
+        const res = await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode })
+        });
+        const data = await res.json();
+        updateUIState(data.state);
+        if (mode === 'start') {
+          speakVoice('Emergency Green Corridor activated. Junction 1 forced green. Civilian radar broadcasting.');
+        } else {
+          speakVoice('Green corridor deactivated. Standby mode restored.');
+        }
+      } catch (err) {
+        console.error('API trigger error:', err);
+      }
+    }
+
+    // Simulate Passing Junction
+    async function simulateJunctionPass() {
+      try {
+        const res = await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode: 'pass' })
+        });
+        const data = await res.json();
+        updateUIState(data.state);
+        speakVoice('Junction 1 cleared. Preempting Junction 2 to green corridor.');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Simulate Hospital Arrival
+    async function simulateHospitalArrival() {
+      try {
+        const res = await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode: 'hospital_arrived' })
+        });
+        const data = await res.json();
+        updateUIState(data.state);
+        speakVoice('Arrived at Care Hospital Emergency Bay. Golden hour handover initiated.');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Distance Slider input
+    async function onDistanceSlider(val) {
+      document.getElementById('sliderDistLabel').innerText = val + ' meters';
+      document.getElementById('distValue').innerText = val;
+      try {
+        await fetch('/api/ambulance/telemetry', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ distance: parseFloat(val) })
+        });
+      } catch (e) {}
+    }
+
+    // Speed Slider input
+    async function onSpeedSlider(val) {
+      document.getElementById('sliderSpeedLabel').innerText = val + ' km/h';
+      document.getElementById('speedValue').innerText = val;
+      try {
+        await fetch('/api/ambulance/telemetry', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ speed: parseFloat(val) })
+        });
+      } catch (e) {}
+    }
+
+    // Save Patient Vitals
+    async function savePatientVitals() {
+      const vitals = {
+        patient_name: document.getElementById('inputPatientName').value,
+        heart_rate: parseInt(document.getElementById('inputHeartRate').value),
+        spo2: parseInt(document.getElementById('inputSpo2').value),
+        blood_pressure: document.getElementById('inputBP').value,
+        trauma_grade: document.getElementById('selectTraumaGrade').value,
+        condition: document.getElementById('inputCondition').value,
+        blood_group: document.getElementById('inputBloodGroup').value
+      };
+
+      try {
+        const res = await fetch('/api/ambulance/vitals', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(vitals)
+        });
+        if (res.ok) {
+          speakVoice('Patient vitals synced with Trauma Center.');
+          alert('✅ Patient vitals successfully synced to Hospital ER Hub!');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Update UI from System State
+    function updateUIState(state) {
+      if (!state) return;
+      isEmergency = state.emergency_active;
+
+      document.getElementById('speedValue').innerText = Math.round(state.ambulance_speed || 0);
+      document.getElementById('distValue').innerText = Math.round(state.ambulance_distance || 0);
+      document.getElementById('etaValue').innerText = state.eta_seconds || 0;
+
+      const bulb = document.getElementById('signalLightBulb');
+      const icon = document.getElementById('signalIcon');
+      const shortText = document.getElementById('signalShortText');
+      const headline = document.getElementById('corridorHeadline');
+      const subtext = document.getElementById('corridorSubtext');
+      const btnTrigger = document.getElementById('btnEmergencyTrigger');
+      const btnTriggerText = document.getElementById('btnTriggerText');
+
+      if (state.signal_state === 'GREEN_CORRIDOR') {
+        bulb.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-950 border-2 border-emerald-500 glow-green flex flex-col items-center justify-center text-center';
+        icon.className = 'w-8 h-8 text-emerald-400';
+        shortText.innerText = 'GREEN';
+        shortText.className = 'text-[10px] font-black uppercase mt-1 text-emerald-400';
+        headline.innerText = 'Dynamic Green Corridor Active';
+        headline.className = 'text-xl sm:text-2xl font-black text-emerald-400 mt-0.5';
+        subtext.innerText = 'Signal J1 forced GREEN. Cross-traffic blocked. Civilians shifted left.';
+        
+        btnTrigger.className = 'flex-1 py-5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-black text-base sm:text-lg uppercase tracking-wider shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95 border border-slate-700';
+        btnTriggerText.innerText = 'STOP EMERGENCY MODE';
+      } else if (state.signal_state === 'YELLOW_TRANSITION') {
+        bulb.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-950 border-2 border-amber-500 glow-yellow flex flex-col items-center justify-center text-center';
+        icon.className = 'w-8 h-8 text-amber-400';
+        shortText.innerText = 'YELLOW';
+        shortText.className = 'text-[10px] font-black uppercase mt-1 text-amber-400';
+        headline.innerText = 'Clearing Cross-Traffic';
+        headline.className = 'text-xl sm:text-2xl font-black text-amber-400 mt-0.5';
+        subtext.innerText = 'Transitioning signal to Green Corridor for approaching ambulance.';
+      } else if (state.signal_state === 'RECOVERY') {
+        bulb.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-950 border-2 border-blue-500 flex flex-col items-center justify-center text-center';
+        icon.className = 'w-8 h-8 text-blue-400';
+        shortText.innerText = 'RECOVERY';
+        shortText.className = 'text-[10px] font-black uppercase mt-1 text-blue-400';
+        headline.innerText = 'Junction Cleared • Normalizing';
+        headline.className = 'text-xl sm:text-2xl font-black text-blue-300 mt-0.5';
+        subtext.innerText = 'Ambulance has cleared J1. Signal safely recovering normal cycle.';
+      } else {
+        bulb.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-slate-800 border-2 border-slate-700 flex flex-col items-center justify-center text-center';
+        icon.className = 'w-8 h-8 text-slate-400';
+        shortText.innerText = 'STANDBY';
+        shortText.className = 'text-[10px] font-black uppercase mt-1 text-slate-400';
+        headline.innerText = 'Normal Traffic Cycle';
+        headline.className = 'text-xl sm:text-2xl font-black text-white mt-0.5';
+        subtext.innerText = 'Preemption inactive. Standard traffic countdown active.';
+
+        btnTrigger.className = 'flex-1 py-5 px-6 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black text-base sm:text-lg uppercase tracking-wider shadow-xl shadow-red-600/30 flex items-center justify-center gap-3 transition-all active:scale-95';
+        btnTriggerText.innerText = 'ACTIVATE GREEN CORRIDOR';
+      }
+
+      // Update Vitals inputs if not actively typing
+      if (state.patient_vitals) {
+        const v = state.patient_vitals;
+        if (document.activeElement !== document.getElementById('inputHeartRate')) {
+          document.getElementById('inputHeartRate').value = v.heart_rate || 120;
+        }
+        if (document.activeElement !== document.getElementById('inputSpo2')) {
+          document.getElementById('inputSpo2').value = v.spo2 || 94;
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    // Connect to Server-Sent Events (SSE) Stream
+    function initSSE() {
+      const evtSource = new EventSource('/api/stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const state = JSON.parse(e.data);
+          updateUIState(state);
+        } catch(err) {
+          console.error(err);
+        }
+      };
+      evtSource.onerror = function() {
+        console.log('SSE connection lost, fallback to polling...');
+        setTimeout(initSSE, 3000);
+      };
+    }
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') return;
+        deferredPrompt = null;
+      }
+      window.location.href = '/download_apk';
+    }
+
+    // Initialize
+    initSSE();
+  </script>
+</body>
+</html>

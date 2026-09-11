@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🚗 Connected Vehicle V2X Early Warning Radar</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ef4444">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    @keyframes radar-sweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .radar-beam {
+      animation: radar-sweep 3s linear infinite;
+      transform-origin: 50% 50%;
+    }
+
+    @keyframes alert-flash {
+      0%, 100% { background-color: #450a0a; border-color: #ef4444; }
+      50% { background-color: #881337; border-color: #f43f5e; }
+    }
+    .flashing-emergency {
+      animation: alert-flash 0.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body id="bgContainer" class="bg-[#070b14] text-white min-h-screen font-sans flex flex-col justify-between p-4 sm:p-6 transition-all duration-300 pb-20 md:pb-6 selection:bg-red-500 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div class="flex items-center gap-2">
+      <div id="v2xLiveDot" class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
+      <span class="text-xs font-mono uppercase text-emerald-400 font-bold tracking-wider">V2X Node Active</span>
+    </div>
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-medium text-xs">
+      <a href="/" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="grid" class="w-3.5 h-3.5"></i> Portal
+      </a>
+      <a href="/driver" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="ambulance" class="w-3.5 h-3.5 text-red-400"></i> Driver
+      </a>
+      <a href="/civilian" class="px-2.5 py-1.5 rounded-xl border border-amber-500/50 bg-amber-600/20 text-amber-300 transition flex items-center gap-1 whitespace-nowrap font-bold">
+        <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> Civilian
+      </a>
+      <a href="/hospital" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="cross" class="w-3.5 h-3.5 text-rose-400"></i> Hospital
+      </a>
+      <a href="/police" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Police
+      </a>
+      <button onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl border-2 border-emerald-400 bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg shadow-emerald-500/20 active:scale-95 whitespace-nowrap">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> 📥 INSTALL APP
+      </button>
+      <button onclick="testSiren()" class="p-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white text-xs">
+        <i data-lucide="volume-2" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- CENTER MAIN RADAR DISPLAY -->
+  <main class="flex-1 flex flex-col items-center justify-center text-center my-6 space-y-6 max-w-md mx-auto w-full">
+    
+    <!-- RADAR VISUALIZATION WIDGET -->
+    <div class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full border-2 border-slate-800 flex items-center justify-center bg-slate-950/60 shadow-2xl">
+      <!-- Radar concentric rings -->
+      <div class="absolute w-36 h-36 rounded-full border border-slate-800/80"></div>
+      <div class="absolute w-24 h-24 rounded-full border border-slate-800/60"></div>
+      <div class="absolute w-12 h-12 rounded-full border border-slate-700/40"></div>
+
+      <!-- Radar Rotating Beam (when clear) -->
+      <div id="radarSweep" class="absolute inset-0 rounded-full radar-beam pointer-events-none opacity-40" style="background: conic-gradient(from 0deg, transparent 70%, rgba(16, 185, 129, 0.4) 100%);"></div>
+
+      <!-- Center Civilian Vehicle Icon -->
+      <div class="relative z-10 w-12 h-12 rounded-full bg-indigo-600 border-2 border-indigo-400 flex items-center justify-center shadow-lg text-white">
+        <i data-lucide="car" class="w-6 h-6"></i>
+      </div>
+
+      <!-- Approaching Ambulance Blip (Appears during emergency) -->
+      <div id="ambulanceBlip" class="hidden absolute top-6 w-8 h-8 rounded-full bg-red-600 border-2 border-white flex items-center justify-center shadow-lg shadow-red-500 text-white animate-bounce">
+        <i data-lucide="siren" class="w-4 h-4 animate-spin"></i>
+      </div>
+    </div>
+
+    <!-- STATUS CARD -->
+    <div id="statusBox" class="w-full p-6 bg-slate-900 border-2 border-slate-800 rounded-3xl shadow-2xl space-y-4 transition-all duration-300">
+      
+      <div id="iconBox" class="w-16 h-16 bg-slate-800 text-slate-400 rounded-2xl flex items-center justify-center mx-auto transition-all">
+        <i data-lucide="shield-check" class="w-8 h-8 text-emerald-400"></i>
+      </div>
+
+      <div>
+        <h2 id="titleText" class="text-xl sm:text-2xl font-black text-white">Lane Route Clear</h2>
+        <p id="descText" class="text-xs text-slate-400 mt-1">Normal Driving Mode • No Emergency Vehicles within 500m geofence</p>
+      </div>
+
+      <!-- EMERGENCY DISTANCE & SPEED STATS (HIDDEN BY DEFAULT) -->
+      <div id="emergencyStats" class="hidden grid grid-cols-2 gap-3 pt-2">
+        <div class="bg-red-950/80 p-3 rounded-2xl border border-red-500/40">
+          <span class="text-[10px] font-bold text-red-300 uppercase">Ambulance Behind</span>
+          <div class="text-xl font-black font-mono text-white"><span id="civAmbulanceDist">380</span> m</div>
+        </div>
+        <div class="bg-red-950/80 p-3 rounded-2xl border border-red-500/40">
+          <span class="text-[10px] font-bold text-red-300 uppercase">Approach Speed</span>
+          <div class="text-xl font-black font-mono text-white"><span id="civAmbulanceSpeed">68</span> km/h</div>
+        </div>
+      </div>
+
+      <!-- ACTION BANNER -->
+      <div id="actionBanner" class="hidden p-4 bg-red-600 text-white font-black text-base rounded-2xl uppercase tracking-wider shadow-lg animate-bounce flex items-center justify-center gap-2">
+        <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+        <span>🚨 MOVE TO LEFT LANE NOW 🚨</span>
+      </div>
+
+      <!-- ACKNOWLEDGE LANE CLEAR BUTTON -->
+      <button id="btnAcknowledgeLane" onclick="acknowledgeLaneClear()" class="hidden w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm uppercase rounded-2xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+        <i data-lucide="check" class="w-5 h-5"></i>
+        <span>I Have Cleared the Left Lane</span>
+      </button>
+
+    </div>
+  </main>
+
+  <!-- FOOTER ACTION -->
+  <footer class="max-w-md mx-auto w-full space-y-3">
+    <div class="flex gap-2">
+      <button onclick="testSiren()" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl border border-slate-800 transition active:scale-95 text-xs flex items-center justify-center gap-2">
+        <i data-lucide="bell" class="w-4 h-4 text-red-400"></i> Test In-Cabin Audio Siren
+      </button>
+      <button onclick="triggerSimulatedEmergency()" class="py-3 px-4 bg-red-600/20 hover:bg-red-600/40 text-red-300 font-bold rounded-xl border border-red-500/30 text-xs flex items-center justify-center gap-1 active:scale-95">
+        <i data-lucide="zap" class="w-4 h-4"></i> Demo Alert
+      </button>
+    </div>
+    <p class="text-center text-[10px] text-slate-500">
+      Trapped Ambulance V2X Civilian Early Warning Protocol • Real-Time GPS Mesh
+    </p>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAV BAR FOR QUICK ROLE SWITCHING -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-2 flex justify-around items-center">
+    <a href="/" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
+      <i data-lucide="layout-grid" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Portal</span>
+    </a>
+    <a href="/driver" class="flex flex-col items-center text-slate-400 hover:text-red-400 py-1">
+      <i data-lucide="ambulance" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Driver</span>
+    </a>
+    <a href="/civilian" class="flex flex-col items-center text-amber-400 py-1">
+      <i data-lucide="car" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Civilian</span>
+    </a>
+    <a href="/hospital" class="flex flex-col items-center text-slate-400 hover:text-cyan-400 py-1">
+      <i data-lucide="cross" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Hospital</span>
+    </a>
+    <a href="/police" class="flex flex-col items-center text-slate-400 hover:text-indigo-400 py-1">
+      <i data-lucide="shield" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Police</span>
+    </a>
+  </nav>
+
+  <!-- SCRIPT -->
+  <script>
+    lucide.createIcons();
+    let audioCtx = null;
+    let isEmergencyAlertActive = false;
+    let sirenInterval = null;
+
+    // Siren Sound Synthesizer via Web Audio API
+    function playSirenSound() {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1350, audioCtx.currentTime + 0.35);
+        osc.frequency.exponentialRampToValueAtTime(750, audioCtx.currentTime + 0.7);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.7);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.7);
+      } catch (e) {
+        console.log('Audio error:', e);
+      }
+    }
+
+    // Web Speech API Voice Warning
+    function speakVoiceAlert(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.1;
+      utterance.pitch = 1.05;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function testSiren() {
+      playSirenSound();
+      speakVoiceAlert('Emergency siren test active.');
+    }
+
+    // User Acknowledges Lane Clearance
+    async function acknowledgeLaneClear() {
+      try {
+        await fetch('/api/civilian/acknowledge', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'}
+        });
+        const banner = document.getElementById('actionBanner');
+        banner.className = 'p-3 bg-emerald-600 text-white font-bold text-sm rounded-xl uppercase tracking-wider flex items-center justify-center gap-2';
+        banner.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i><span>Lane Cleared • Thank You</span>';
+        lucide.createIcons();
+        speakVoiceAlert('Thank you. Clearance confirmed to emergency transit corridor.');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Toggle simulated emergency demo
+    async function triggerSimulatedEmergency() {
+      try {
+        await fetch('/api/trigger_emergency', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ mode: isEmergencyAlertActive ? 'reset' : 'start' })
+        });
+      } catch (e) {}
+    }
+
+    // Update Civilian Radar UI based on system state
+    function updateCivilianUI(state) {
+      if (!state) return;
+      const isAlert = state.civilian_alerts && state.civilian_alerts.active;
+      const bg = document.getElementById('bgContainer');
+      const box = document.getElementById('statusBox');
+      const icon = document.getElementById('iconBox');
+      const title = document.getElementById('titleText');
+      const desc = document.getElementById('descText');
+      const banner = document.getElementById('actionBanner');
+      const stats = document.getElementById('emergencyStats');
+      const btnAck = document.getElementById('btnAcknowledgeLane');
+      const blip = document.getElementById('ambulanceBlip');
+      const sweep = document.getElementById('radarSweep');
+
+      if (isAlert) {
+        if (!isEmergencyAlertActive) {
+          isEmergencyAlertActive = true;
+          // Play initial warning sound and voice
+          playSirenSound();
+          speakVoiceAlert('Attention! Emergency ambulance approaching 380 meters behind in your lane. Please steer to the left lane immediately.');
+          if (!sirenInterval) {
+            sirenInterval = setInterval(playSirenSound, 1600);
+          }
+        }
+
+        bg.className = 'bg-[#180507] text-white min-h-screen font-sans flex flex-col justify-between p-4 sm:p-6 flashing-emergency transition-all duration-300 pb-20 md:pb-6';
+        box.className = 'w-full p-6 bg-red-950/90 border-2 border-red-500 rounded-3xl shadow-2xl space-y-4';
+        icon.className = 'w-16 h-16 bg-red-600 text-white rounded-2xl flex items-center justify-center mx-auto animate-bounce';
+        icon.innerHTML = '<i data-lucide="siren" class="w-8 h-8"></i>';
+        title.innerText = '🚨 AMBULANCE IN YOUR LANE!';
+        title.className = 'text-xl sm:text-2xl font-black text-red-100 uppercase tracking-tight';
+        desc.innerText = 'Approaching behind at ' + Math.round(state.ambulance_speed || 65) + ' km/h. Critical Patient Handover.';
+        
+        document.getElementById('civAmbulanceDist').innerText = Math.round(state.ambulance_distance || 380);
+        document.getElementById('civAmbulanceSpeed').innerText = Math.round(state.ambulance_speed || 68);
+        
+        stats.classList.remove('hidden');
+        banner.classList.remove('hidden');
+        btnAck.classList.remove('hidden');
+        blip.classList.remove('hidden');
+        sweep.classList.add('hidden');
+
+      } else {
+        if (isEmergencyAlertActive) {
+          isEmergencyAlertActive = false;
+          if (sirenInterval) {
+            clearInterval(sirenInterval);
+            sirenInterval = null;
+          }
+        }
+
+        bg.className = 'bg-[#070b14] text-white min-h-screen font-sans flex flex-col justify-between p-4 sm:p-6 transition-all duration-300 pb-20 md:pb-6';
+        box.className = 'w-full p-6 bg-slate-900 border-2 border-slate-800 rounded-3xl shadow-2xl space-y-4';
+        icon.className = 'w-16 h-16 bg-slate-800 text-slate-400 rounded-2xl flex items-center justify-center mx-auto';
+        icon.innerHTML = '<i data-lucide="shield-check" class="w-8 h-8 text-emerald-400"></i>';
+        title.innerText = 'Lane Route Clear';
+        title.className = 'text-xl sm:text-2xl font-black text-white';
+        desc.innerText = 'Normal Driving Mode • No Emergency Vehicles within 500m geofence';
+        
+        stats.classList.add('hidden');
+        banner.classList.add('hidden');
+        btnAck.classList.add('hidden');
+        blip.classList.add('hidden');
+        sweep.classList.remove('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
+    // SSE Connection
+    function initSSE() {
+      const evtSource = new EventSource('/api/stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const state = JSON.parse(e.data);
+          updateCivilianUI(state);
+        } catch(err) {
+          console.error(err);
+        }
+      };
+      evtSource.onerror = function() {
+        setTimeout(initSSE, 3000);
+      };
+    }
+
+    // Service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') return;
+        deferredPrompt = null;
+      }
+      window.location.href = '/download_apk';
+    }
+
+    initSSE();
+  </script>
+</body>
+</html>

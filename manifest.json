@@ -1,0 +1,40 @@
+{
+  "name": "Trapped Ambulance - Emergency Green Corridor",
+  "short_name": "TrappedAmbulance",
+  "description": "Smart Emergency Vehicle Clearance & Dynamic Green Corridor System with V2X Early Warning and Hospital Handover",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#ef4444",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ef4444'/><text x='50' y='65' font-size='50' text-anchor='middle' fill='white'>🚑</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ambulance Driver",
+      "url": "/driver",
+      "description": "In-vehicle preemption and triage console"
+    },
+    {
+      "name": "Civilian V2X Alert",
+      "url": "/civilian",
+      "description": "Early proximity warning radar for drivers"
+    },
+    {
+      "name": "Hospital ER",
+      "url": "/hospital",
+      "description": "Emergency trauma readiness dashboard"
+    },
+    {
+      "name": "Traffic Police",
+      "url": "/police",
+      "description": "City junction signal command center"
+    }
+  ]
+}

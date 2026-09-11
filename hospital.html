@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🏥 Hospital ER Trauma Readiness Dashboard</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ef4444">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    @keyframes ecg-scroll {
+      0% { stroke-dashoffset: 600; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .ecg-line {
+      stroke-dasharray: 600;
+      animation: ecg-scroll 2.5s linear infinite;
+    }
+    
+    .trauma-glow-red {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#070b14] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-red-500 selection:text-white pb-20 md:pb-6">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-600 to-red-800 flex items-center justify-center shadow-lg shadow-red-600/30 text-white">
+        <i data-lucide="cross" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-black tracking-tight text-white">CARE EMERGENCY & TRAUMA CENTER</h1>
+          <span class="text-[10px] font-bold px-2 py-0.5 bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full font-mono">
+            DOCK #02 ACTIVE
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400">Pre-Arrival Telemetry & Zero-Delay Operating Theatre Prep Hub</p>
+      </div>
+    </div>
+
+    <!-- ROLE NAVIGATION TABS & CONTROLS -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 font-medium text-xs">
+      <a href="/" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="grid" class="w-3.5 h-3.5"></i> Portal
+      </a>
+      <a href="/driver" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="ambulance" class="w-3.5 h-3.5 text-red-400"></i> Driver
+      </a>
+      <a href="/civilian" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="car" class="w-3.5 h-3.5 text-amber-400"></i> Civilian
+      </a>
+      <a href="/hospital" class="px-2.5 py-1.5 rounded-xl border border-rose-500/50 bg-rose-600/20 text-rose-300 transition flex items-center gap-1 whitespace-nowrap font-bold">
+        <i data-lucide="cross" class="w-3.5 h-3.5 text-rose-400"></i> Hospital
+      </a>
+      <a href="/police" class="px-2.5 py-1.5 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 transition flex items-center gap-1 whitespace-nowrap">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i> Police
+      </a>
+      <button onclick="triggerPwaInstall()" class="px-3 py-1.5 rounded-xl border-2 border-emerald-400 bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-lg shadow-emerald-500/20 active:scale-95 whitespace-nowrap">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> 📥 INSTALL APP
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN HOSPITAL ER COCKPIT -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- TOP ETA & INCOMING VEHICLE COUNTDOWN BANNER -->
+    <div id="etaBanner" class="p-6 rounded-3xl bg-slate-900 border-2 border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 transition-all">
+      
+      <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="w-20 h-20 rounded-2xl bg-rose-950/80 border-2 border-rose-500 flex flex-col items-center justify-center text-center trauma-glow-red flex-shrink-0">
+          <i data-lucide="ambulance" class="w-8 h-8 text-rose-400 animate-bounce"></i>
+          <span class="text-[9px] font-black uppercase mt-0.5 text-rose-300 font-mono">INCOMING</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-400">Emergency Golden Hour Transit</span>
+            <span class="text-[10px] px-2 py-0.5 bg-red-500/20 text-red-300 font-mono font-bold rounded-md">AMB-911-HYD</span>
+          </div>
+          <h2 id="patientHeaderTitle" class="text-xl sm:text-2xl font-black text-white mt-1">Ramesh Verma (54M)</h2>
+          <p id="patientConditionText" class="text-xs text-rose-300 font-medium mt-0.5">Severe Acute Coronary Syndrome / ST-Elevation (Grade 1 Critical)</p>
+        </div>
+      </div>
+
+      <!-- ETA COUNTDOWN DIAL -->
+      <div class="flex items-center gap-4 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 w-full md:w-auto justify-around">
+        <div class="text-center">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">Exact ER ETA</span>
+          <div class="text-3xl sm:text-4xl font-black font-mono text-amber-400"><span id="erEtaSeconds">24</span> <span class="text-sm font-normal text-slate-400">sec</span></div>
+        </div>
+        <div class="h-10 w-px bg-slate-800"></div>
+        <div class="text-center">
+          <span class="text-[10px] font-bold text-slate-400 uppercase">Distance</span>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-emerald-400"><span id="erAmbulanceDist">380</span> <span class="text-xs font-normal text-slate-400">m</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LIVE ECG WAVEFORM MONITOR & TELEMETRY VITALS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- ECG MONITOR & BIOMETRIC STREAM -->
+      <div class="lg:col-span-2 bg-slate-900/90 p-6 rounded-3xl border border-slate-800 space-y-6">
+        
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="activity" class="w-5 h-5 text-red-500 animate-pulse"></i>
+            <h3 class="text-sm font-black text-white uppercase tracking-wider">Live In-Transit ECG Waveform (Lead II)</h3>
+          </div>
+          <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Telemetric 5G Stream</span>
+        </div>
+
+        <!-- SVG ECG WAVEFORM ANIMATION -->
+        <div class="relative bg-slate-950 p-4 rounded-2xl border border-slate-800 overflow-hidden h-32 flex items-center">
+          <!-- Background Grid Lines -->
+          <div class="absolute inset-0 opacity-15" style="background-image: linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px); background-size: 16px 16px;"></div>
+          
+          <svg class="w-full h-24 overflow-visible" viewBox="0 0 600 80">
+            <path class="ecg-line stroke-red-500 fill-none stroke-[2.5]" d="
+              M 0 40 
+              L 40 40 L 50 38 L 55 42 L 60 40 
+              L 75 40 L 80 48 L 88 5 L 96 68 L 104 40 
+              L 120 40 L 135 32 L 150 40 
+              L 190 40 L 200 38 L 205 42 L 210 40 
+              L 225 40 L 230 48 L 238 5 L 246 68 L 254 40 
+              L 270 40 L 285 32 L 300 40
+              L 340 40 L 350 38 L 355 42 L 360 40 
+              L 375 40 L 380 48 L 388 5 L 396 68 L 404 40 
+              L 420 40 L 435 32 L 450 40
+              L 490 40 L 500 38 L 505 42 L 510 40 
+              L 525 40 L 530 48 L 538 5 L 546 68 L 554 40 
+              L 570 40 L 585 32 L 600 40" />
+          </svg>
+        </div>
+
+        <!-- 4 VITALS METRICS TILES -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          
+          <!-- Heart Rate -->
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-red-500/30 text-center">
+            <span class="text-[10px] font-bold text-red-400 uppercase flex items-center justify-center gap-1">
+              <i data-lucide="heart" class="w-3.5 h-3.5 fill-red-500 animate-ping"></i> Heart Rate
+            </span>
+            <div class="text-2xl font-black font-mono text-white mt-1"><span id="vitalsHR">126</span> <span class="text-xs font-normal text-slate-400">bpm</span></div>
+            <span class="text-[9px] font-mono text-rose-400">Tachycardia</span>
+          </div>
+
+          <!-- SpO2 -->
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-cyan-500/30 text-center">
+            <span class="text-[10px] font-bold text-cyan-400 uppercase flex items-center justify-center gap-1">
+              <i data-lucide="wind" class="w-3.5 h-3.5"></i> SpO2 Oxygen
+            </span>
+            <div class="text-2xl font-black font-mono text-white mt-1"><span id="vitalsSpO2">91</span> <span class="text-xs font-normal text-slate-400">%</span></div>
+            <span class="text-[9px] font-mono text-amber-400">Hypoxia Alert</span>
+          </div>
+
+          <!-- Blood Pressure -->
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/30 text-center">
+            <span class="text-[10px] font-bold text-amber-400 uppercase flex items-center justify-center gap-1">
+              <i data-lucide="gauge" class="w-3.5 h-3.5"></i> Blood Pressure
+            </span>
+            <div class="text-2xl font-black font-mono text-white mt-1"><span id="vitalsBP">155/100</span></div>
+            <span class="text-[9px] font-mono text-amber-400">Hypertensive</span>
+          </div>
+
+          <!-- Blood Group -->
+          <div class="bg-slate-950 p-3.5 rounded-2xl border border-rose-500/30 text-center">
+            <span class="text-[10px] font-bold text-rose-400 uppercase flex items-center justify-center gap-1">
+              <i data-lucide="droplet" class="w-3.5 h-3.5 fill-rose-500"></i> Blood Group
+            </span>
+            <div class="text-2xl font-black font-mono text-rose-300 mt-1"><span id="vitalsBlood">B+</span></div>
+            <span class="text-[9px] font-mono text-emerald-400">4 Units Matched</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TRAUMA TEAM & OPERATING ROOM (OT) READINESS ACTIONS -->
+      <div class="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 flex flex-col justify-between space-y-4">
+        
+        <div>
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-400"></i> ER Readiness Hub
+            </h3>
+            <span class="text-[10px] font-mono text-rose-400 font-bold">Priority Red</span>
+          </div>
+
+          <div class="space-y-3 mt-4">
+            
+            <!-- OT Bay Status -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400">Operating Bay Status</div>
+              <div id="otStatusDisplay" class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Trauma Bay 02 - Reserved & Sterile
+              </div>
+            </div>
+
+            <!-- Blood Bank Status -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400">Blood Bank Crossmatch</div>
+              <div class="text-xs font-bold text-rose-300 flex items-center gap-1.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> 4 Units B+ Blood on ER Rapid Infuser
+              </div>
+            </div>
+
+            <!-- Specialist On-Call -->
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <div class="text-[10px] font-bold uppercase text-slate-400">Surgical Team</div>
+              <div id="doctorStatusDisplay" class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-4 h-4 text-indigo-400"></i> Dr. A. Sharma (Senior Cardiologist)
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 1-CLICK ACTION BUTTONS -->
+        <div class="space-y-2 pt-2 border-t border-slate-800">
+          <button onclick="dispatchHospitalAction('reserve_ot')" class="w-full py-2.5 px-3 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 font-bold rounded-xl text-xs transition active:scale-95 flex items-center justify-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4"></i> Confirm Trauma Bay 01 Ready
+          </button>
+          
+          <button onclick="dispatchHospitalAction('alert_specialist')" class="w-full py-2.5 px-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+            <i data-lucide="bell-ring" class="w-4 h-4"></i> Page Chief Trauma Surgeon
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MOBILE BOTTOM NAV BAR FOR QUICK ROLE SWITCHING -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-950/95 backdrop-blur border-t border-slate-800 px-4 py-2 flex justify-around items-center">
+    <a href="/" class="flex flex-col items-center text-slate-400 hover:text-white py-1">
+      <i data-lucide="layout-grid" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Portal</span>
+    </a>
+    <a href="/driver" class="flex flex-col items-center text-slate-400 hover:text-red-400 py-1">
+      <i data-lucide="ambulance" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Driver</span>
+    </a>
+    <a href="/civilian" class="flex flex-col items-center text-slate-400 hover:text-amber-400 py-1">
+      <i data-lucide="car" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Civilian</span>
+    </a>
+    <a href="/hospital" class="flex flex-col items-center text-rose-400 py-1">
+      <i data-lucide="cross" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Hospital</span>
+    </a>
+    <a href="/police" class="flex flex-col items-center text-slate-400 hover:text-indigo-400 py-1">
+      <i data-lucide="shield" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">Police</span>
+    </a>
+  </nav>
+
+  <!-- SCRIPT -->
+  <script>
+    lucide.createIcons();
+
+    // Trigger hospital team prep action
+    async function dispatchHospitalAction(action) {
+      try {
+        const res = await fetch('/api/hospital/prep', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ action })
+        });
+        const data = await res.json();
+        if (data.vitals) {
+          updateHospitalUI({ patient_vitals: data.vitals });
+          alert('✅ Emergency Team Notified: ER Protocol Acknowledged!');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Update Hospital UI from system state
+    function updateHospitalUI(state) {
+      if (!state) return;
+      
+      if (state.eta_seconds !== undefined) {
+        document.getElementById('erEtaSeconds').innerText = state.eta_seconds;
+      }
+      if (state.ambulance_distance !== undefined) {
+        document.getElementById('erAmbulanceDist').innerText = Math.round(state.ambulance_distance);
+      }
+
+      const v = state.patient_vitals;
+      if (v) {
+        if (v.patient_name) document.getElementById('patientHeaderTitle').innerText = v.patient_name;
+        if (v.condition) document.getElementById('patientConditionText').innerText = `${v.condition} (${v.trauma_grade || 'Critical'})`;
+        if (v.heart_rate) document.getElementById('vitalsHR').innerText = v.heart_rate;
+        if (v.spo2) document.getElementById('vitalsSpO2').innerText = v.spo2;
+        if (v.blood_pressure) document.getElementById('vitalsBP').innerText = v.blood_pressure;
+        if (v.blood_group) document.getElementById('vitalsBlood').innerText = v.blood_group;
+        if (v.ot_reserved) document.getElementById('otStatusDisplay').innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> ${v.ot_reserved}`;
+        if (v.surgeon_on_call) document.getElementById('doctorStatusDisplay').innerHTML = `<i data-lucide="user-check" class="w-4 h-4 text-indigo-400"></i> ${v.surgeon_on_call}`;
+      }
+
+      lucide.createIcons();
+    }
+
+    // SSE Connection
+    function initSSE() {
+      const evtSource = new EventSource('/api/stream');
+      evtSource.onmessage = function(e) {
+        try {
+          const state = JSON.parse(e.data);
+          updateHospitalUI(state);
+        } catch(err) {
+          console.error(err);
+        }
+      };
+      evtSource.onerror = function() {
+        setTimeout(initSSE, 3000);
+      };
+    }
+
+    // Service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg error:', err));
+      });
+    }
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    async function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') return;
+        deferredPrompt = null;
+      }
+      window.location.href = '/download_apk';
+    }
+
+    initSSE();
+  </script>
+</body>
+</html>
