@@ -110,22 +110,28 @@ def log_event(text, event_type="info"):
 # --- ROUTES ---
 
 @app.route('/')
+@app.route('/index.html')
+@app.route('/unified_app.html')
 def unified_portal():
-    return render_template('unified_app.html', state=system_state)
+    return render_template('index.html', state=system_state)
 
 @app.route('/driver')
+@app.route('/driver.html')
 def driver_view():
     return render_template('driver.html', state=system_state)
 
 @app.route('/civilian')
+@app.route('/civilian.html')
 def civilian_view():
     return render_template('civilian.html', state=system_state)
 
 @app.route('/hospital')
+@app.route('/hospital.html')
 def hospital_view():
     return render_template('hospital.html', state=system_state)
 
 @app.route('/police')
+@app.route('/police.html')
 def police_view():
     return render_template('police.html', state=system_state)
 
